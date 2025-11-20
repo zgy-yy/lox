@@ -36,5 +36,10 @@ export default defineConfig({
     port: 9527,
     open: true,
   },
+  // Vitest 配置
+  test: {
+    globals: true,
+    environment: 'node',
+  },
 });
 
