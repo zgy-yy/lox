@@ -1,5 +1,5 @@
 +var name = "B
-o"@
+o"
 var age = 42;
 var result = 10 + 20;
 print "Hello, " + name;

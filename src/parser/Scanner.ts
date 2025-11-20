@@ -1,23 +1,22 @@
-import { Token, TokenType } from '@/ast/Token.ts';
+import { Token } from '@/ast/Token.ts';
+import { TokenType } from '@/ast/TokenType.ts';
 import ErrorHandler from './ErrorHandler';
 
 
 // 关键字映射
 const keywords = new Map<string, TokenType>([
-  ['class', TokenType.CLASS],
-  ['else', TokenType.ELSE],
-  ['false', TokenType.FALSE],
-  ['for', TokenType.FOR],
-  ['fun', TokenType.FUN],
-  ['if', TokenType.IF],
-  ['nil', TokenType.NIL],
-  ['print', TokenType.PRINT],
-  ['return', TokenType.RETURN],
-  ['super', TokenType.SUPER],
-  ['this', TokenType.THIS],
-  ['true', TokenType.TRUE],
-  ['var', TokenType.VAR],
-  ['while', TokenType.WHILE],
+  ['class', TokenType.Class],
+  ['else', TokenType.Else],
+  ['false', TokenType.False],
+  ['for', TokenType.For],
+  ['fun', TokenType.Fun],
+  ['if', TokenType.If],  
+  ['nil', TokenType.Nil],
+  ['print', TokenType.Print],
+  ['return', TokenType.Return],  
+  ['super', TokenType.Super],
+  ['this', TokenType.This],
+  ['true', TokenType.True],  
 ]);
 
 // 词法分析器（Scanner）
@@ -50,53 +49,53 @@ export class Scanner {
 
     switch (c) {
       case '(':
-        this.addToken(TokenType.LEFT_PAREN);
+        this.addToken(TokenType.LeftParen);
         break;
       case ')':
-        this.addToken(TokenType.RIGHT_PAREN);
+        this.addToken(TokenType.RightParen);
         break;
       case '{':
-        this.addToken(TokenType.LEFT_BRACE);
+        this.addToken(TokenType.LeftBrace);
         break;
       case '}':
-        this.addToken(TokenType.RIGHT_BRACE);
+        this.addToken(TokenType.RightBrace);
         break;
       case ',':
-        this.addToken(TokenType.COMMA);
+        this.addToken(TokenType.Comma);
         break;
       case '.':
-        this.addToken(TokenType.DOT);
+        this.addToken(TokenType.Dot);
         break;
       case '-':
-        this.addToken(TokenType.MINUS);
+        this.addToken(TokenType.Minus);
         break;
       case '+':
-        this.addToken(TokenType.PLUS);
+        this.addToken(TokenType.Plus);
         break;
       case ';':
-        this.addToken(TokenType.SEMICOLON);
+        this.addToken(TokenType.Semicolon);
         break;
       case '&':
-        this.addToken(this.match('&') ? TokenType.AND : TokenType.BIT_AND);
+        this.addToken(this.match('&') ? TokenType.And : TokenType.BitAnd);
         break;
       case '|':
-        this.addToken(this.match('|') ? TokenType.OR : TokenType.BIT_OR);
+          this.addToken(this.match('|') ? TokenType.Or : TokenType.BitOr);
         break;
       case '*':
-        this.addToken(TokenType.STAR);
+        this.addToken(TokenType.Star);
         break;
       case '!':
-        this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
+        this.addToken(this.match('=') ? TokenType.BangEqual : TokenType.Bang);
         break;
       case '=':
-        this.addToken(this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+        this.addToken(this.match('=') ? TokenType.EqualEqual : TokenType.Equal);
         break;
       case '<':
-        this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+        this.addToken(this.match('=') ? TokenType.LessEqual : TokenType.Less);
         break;
       case '>':
         this.addToken(
-          this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER
+          this.match('=') ? TokenType.GreaterEqual : TokenType.Greater
         );
         break;
       case '/':
@@ -106,7 +105,7 @@ export class Scanner {
             this.advance();
           }
         } else {
-          this.addToken(TokenType.SLASH);
+          this.addToken(TokenType.Slash);
         }
         break;
       case ' ':
@@ -152,7 +151,7 @@ export class Scanner {
 
     // 提取字符串值（去掉引号）
     const value = this.source.substring(this.start + 1, this.current - 1);
-    this.addToken(TokenType.STRING, value);
+    this.addToken(TokenType.String, value);
   }
 
   // 处理数字字面量
@@ -172,7 +171,7 @@ export class Scanner {
     }
 
     const value = parseFloat(this.source.substring(this.start, this.current));
-    this.addToken(TokenType.NUMBER, value);
+    this.addToken(TokenType.Number, value);
   }
 
   // 处理标识符和关键字
@@ -182,7 +181,7 @@ export class Scanner {
     }
 
     const text = this.source.substring(this.start, this.current);
-    const type = keywords.get(text) || TokenType.IDENTIFIER;
+    const type = keywords.get(text) || TokenType.Identifier;
     this.addToken(type);
   }
 
