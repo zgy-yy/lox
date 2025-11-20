@@ -15,8 +15,15 @@ export class Parser {
         this.error = error;
     }
 
-    public parse(): Expr {
-        return this.expression();
+    public parse(): Expr | null {
+        try {
+            return this.expression();
+        } catch (error) {
+            if (error instanceof ParseError) {
+                return null;
+            }
+            throw error;
+        }
     }
 
 
@@ -207,5 +214,29 @@ export class Parser {
     private parseError(token: Token, message: string): ParseError {
         this.error(token.line, token.column, message);
         return new ParseError();
+    }
+
+    /**
+     * 同步
+     * 当解析器遇到错误时，会尝试同步到下一个语句，继续解析后续代码
+     * 
+     * */
+    private synchronize(): void {
+        this.advance();
+        while (!this.isAtEnd()) {
+            if (this.previous().type === TokenType.Semicolon) return;
+            switch (this.peek().type) {
+                case TokenType.Class:
+                case TokenType.Fun:
+                case TokenType.Var:
+                case TokenType.For:
+                case TokenType.If:
+                case TokenType.While:
+                case TokenType.Print:
+                case TokenType.Return:
+                    return
+            }
+            this.advance();
+        }
     }
 }

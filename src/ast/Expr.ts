@@ -1,4 +1,4 @@
-import LiteralValue from "./LiteralValue";
+import LoxValue from "./LoxValue";
 import { Token } from "./Token";
 
 
@@ -52,8 +52,8 @@ export class UnaryExpr extends Expr {
  * 字面量表达式
  */
 export class LiteralExpr extends Expr {
-    value: LiteralValue;
-    constructor(value: LiteralValue) {
+    value: LoxValue;
+    constructor(value: LoxValue) {
         super();
         this.value = value;
     }

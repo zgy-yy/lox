@@ -1,11 +1,12 @@
 import { TokenType } from "@/ast/TokenType";
+import LoxValue from "./LoxValue";
 
 // Token 类型定义
 export class Token {
   constructor(
     public readonly type: TokenType,
     public readonly lexeme: string, // 词素
-    public readonly literal: any,// 字面量
+    public readonly literal: LoxValue,// 字面量
     public readonly line: number,// 行号
     public readonly column: number// 列号
   ) { }

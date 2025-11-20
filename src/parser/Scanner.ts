@@ -1,6 +1,7 @@
 import { Token } from '@/ast/Token.ts';
 import { TokenType } from '@/ast/TokenType.ts';
 import ErrorHandler from './ErrorHandler';
+import LoxValue from '@/ast/LoxValue';
 
 
 // 关键字映射
@@ -192,7 +193,7 @@ export class Scanner {
     return this.current >= this.source.length;
   }
 
-  private addToken(type: TokenType, literal: any = null): void {
+  private addToken(type: TokenType, literal: LoxValue = null): void {
     const text = this.source.substring(this.start, this.current);
     this.tokens.push(new Token(type, text, literal, this.line, this.column));
   }
