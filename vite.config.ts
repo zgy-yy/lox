@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import { readFileSync } from 'fs';
 
@@ -11,8 +12,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // 插件配置：处理 .e 文件
+  // 插件配置
   plugins: [
+    vue(), // Vue 插件
     {
       name: 'load-e-files',
       load(id) {

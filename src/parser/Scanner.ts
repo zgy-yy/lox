@@ -1,4 +1,5 @@
-import { Token, TokenType } from '@/Token';
+import { Token, TokenType } from '@/ast/Token.ts';
+import ErrorHandler from './ErrorHandler';
 
 
 // 关键字映射
@@ -26,8 +27,10 @@ export class Scanner {
   private current = 0;
   private line = 1;
   private column = 0;
-  constructor(private source: string) {
+  private error: ErrorHandler;
+  constructor(private source: string, private _error: ErrorHandler) {
     this.source = source;
+    this.error = _error;
   }
 
   // 扫描所有 token
@@ -124,7 +127,7 @@ export class Scanner {
         } else if (isAlpha(c)) {
           this.identifier();
         } else {
-          throw new Error(`[line ${this.line}, column ${this.column}] Unexpected character: ${c}`);
+          this.error(this.line, this.column, `Unexpected character: ${c}`);
         }
         break;
     }
@@ -141,7 +144,7 @@ export class Scanner {
     }
 
     if (this.isAtEnd()) {
-      throw new Error(`[line ${this.line}] Unterminated string.`);
+      this.error(this.line, this.column, `Unterminated string.`);
     }
 
     // 闭合引号
