@@ -18,6 +18,7 @@ import { Parser } from './parser/Parser';
 
 import content from '@/grammar/expression/binaryExpr.e';
 import { Interperter } from './execute/Interperter';
+import RuntimeError from './execute/RuntimeError';
 
 // 错误光标位置
 const errorCursor = reactive({ line: -1, column: -1 });
@@ -43,9 +44,12 @@ try {
     if (!expr)
         throw new Error('解析失败');
 
-    const interperter = new Interperter();
-    const value = interperter.execute(expr);
-    console.log(value);
+    const interperter = new Interperter((error: RuntimeError) => {
+        errorCursor.line = error.token.line;
+        errorCursor.column = error.token.column;
+        console.warn(`[${error.token.line}:${error.token.column}] ${error.message}`);
+    });
+    interperter.interpret(expr);
 } catch (e) {
     console.error(e instanceof Error ? e.message : '未知错误');
 }
@@ -79,5 +83,4 @@ try {
     border-radius: 4px;
     margin-top: 20px;
 }
-
 </style>

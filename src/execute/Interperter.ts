@@ -1,7 +1,7 @@
 import { BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
 import { TokenType } from "@/ast/TokenType";
-import RuntimeError from "./RunTimeError";
+import RuntimeError from "@/execute/RuntimeError";
 
 
 
@@ -11,7 +11,25 @@ import RuntimeError from "./RunTimeError";
  * 执行表达式，返回LoxValue
  */
 export class Interperter implements ExprVisitor<LoxValue> {
-    public execute(expr: Expr): LoxValue {
+
+    constructor(private readonly runtimeErrorHandler: (error: RuntimeError) => void) {
+        this.runtimeErrorHandler = runtimeErrorHandler;
+    }
+
+    public interpret(expr: Expr) {
+        try {
+            const value = this.execute(expr);
+            console.log(value);
+        } catch (error) {
+            if (error instanceof RuntimeError) {
+                this.runtimeErrorHandler(error);
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    private execute(expr: Expr): LoxValue {
         return expr.accept(this);
     }
     visitBinaryExpr(expr: BinaryExpr): LoxValue {
