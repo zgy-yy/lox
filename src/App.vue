@@ -16,7 +16,7 @@ import { Scanner } from '@/parser/Scanner';
 import ErrorHandler from '@/parser/ErrorHandler';
 import { Parser } from './parser/Parser';
 
-import content from '@/test/expression/binaryExpr.e';
+import content from '@/grammar/expression/binaryExpr.e';
 import { Interperter } from './execute/Interperter';
 
 // 错误光标位置

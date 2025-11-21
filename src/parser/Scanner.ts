@@ -243,4 +243,3 @@ function isAlpha(c: string): boolean {
 function isAlphaNumeric(c: string): boolean {
   return isAlpha(c) || isDigit(c);
 }
-

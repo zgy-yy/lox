@@ -1,6 +1,7 @@
 import { BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
 import { TokenType } from "@/ast/TokenType";
+import RuntimeError from "./RunTimeError";
 
 
 
@@ -55,8 +56,9 @@ export class Interperter implements ExprVisitor<LoxValue> {
             default:
                 break;
         }
+
         // 未知的运算符，抛出错误
-        throw new Error(`Binary operator '${expr.operator.lexeme}' cannot be applied to ${typeof left} and ${typeof right}`);
+        throw new RuntimeError(expr.operator, `Binary operator '${expr.operator.lexeme}' cannot be applied to ${typeof left} and ${typeof right}`, expr.operator.line, expr.operator.column);
     }
 
 
@@ -64,7 +66,7 @@ export class Interperter implements ExprVisitor<LoxValue> {
         const right = this.execute(expr.right);
         switch (expr.operator.type) {
             case TokenType.Bang:
-                return !right;
+                return !this.isTruthy(right);
             case TokenType.Minus:
                 if (typeof right === 'number') {
                     return -right;
@@ -74,7 +76,7 @@ export class Interperter implements ExprVisitor<LoxValue> {
                 break;
         }
         // 未知的运算符，抛出错误
-        throw new Error(`Unary operator '${expr.operator.lexeme}' cannot be applied to ${typeof right}`);
+        throw new RuntimeError(expr.operator, `Unary operator '${expr.operator.lexeme}' cannot be applied to ${typeof right}`, expr.operator.line, expr.operator.column);
     }
     visitLiteralExpr(expr: LiteralExpr): LoxValue {
         return expr.value
@@ -92,3 +94,5 @@ export class Interperter implements ExprVisitor<LoxValue> {
     }
 
 }
+
+
