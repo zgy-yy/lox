@@ -11,6 +11,7 @@ export interface ExprVisitor<R> {
     visitUnaryExpr(expr: UnaryExpr): R;
     visitLiteralExpr(expr: LiteralExpr): R;
     visitGroupingExpr(expr: GroupingExpr): R;
+    visitVariableExpr(expr: VariableExpr): R;
 }
 
 /**
@@ -74,5 +75,17 @@ export class GroupingExpr extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
         return visitor.visitGroupingExpr(this);
+    }
+}
+
+
+export class VariableExpr extends Expr {
+    name: Token;
+    constructor(name: Token) {
+        super();
+        this.name = name;
+    }
+    accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitVariableExpr(this);
     }
 }

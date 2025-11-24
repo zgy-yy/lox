@@ -1,8 +1,9 @@
-import { BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr } from "@/ast/Expr";
+import { BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
-import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor } from "@/ast/Stmt";
+import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
+import Environment from "./Environment";
 
 
 
@@ -12,6 +13,8 @@ import RuntimeError from "@/execute/RuntimeError";
  * 执行表达式，返回LoxValue
  */
 export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
+
+    private readonly environment: Environment = new Environment();
 
     constructor(private readonly runtimeErrorHandler: (error: RuntimeError) => void) {
         this.runtimeErrorHandler = runtimeErrorHandler;
@@ -43,6 +46,11 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         const value: LoxValue = this.evaluate(stmt.expression);
         const v=this.stringify(value);
         console.log(v);
+    }
+
+    visitVarStmt(stmt: VarStmt): void {
+        const value: LoxValue = stmt.initializer ? this.evaluate(stmt.initializer) : null;
+        this.environment.define(stmt.name, value);
     }
 
     //计算表达式
@@ -119,6 +127,10 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     }
     visitGroupingExpr(expr: GroupingExpr): LoxValue {
         return this.evaluate(expr.expression);
+    }
+
+    visitVariableExpr(expr: VariableExpr): LoxValue {
+        return this.environment.get(expr.name);
     }
 
     private isTruthy(value: LoxValue): boolean {

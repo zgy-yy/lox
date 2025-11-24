@@ -1,4 +1,5 @@
 import { Expr } from "@/ast/Expr";
+import { Token } from "@/ast/Token";
 
 
 
@@ -9,6 +10,7 @@ export abstract class Stmt {
 export interface StmtVisitor<R> {
     visitExpressionStmt(stmt: ExpressionStmt): R;
     visitPrintStmt(stmt: PrintStmt): R;
+    visitVarStmt(stmt: VarStmt): R;
 }
 
 
@@ -33,5 +35,18 @@ export class PrintStmt extends Stmt {
 
     accept<R>(visitor: StmtVisitor<R>): R {
         return visitor.visitPrintStmt(this);
+    }
+}
+
+export class VarStmt extends Stmt {
+    name: Token;
+    initializer: Expr | null;
+    constructor(name: Token, initializer: Expr | null) {
+        super();
+        this.name = name;
+        this.initializer = initializer;
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitVarStmt(this);
     }
 }

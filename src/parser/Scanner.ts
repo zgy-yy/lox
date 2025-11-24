@@ -6,6 +6,7 @@ import LoxValue from '@/ast/LoxValue';
 
 // 关键字映射
 const keywords = new Map<string, TokenType>([
+  ['var', TokenType.Var],
   ['class', TokenType.Class],
   ['else', TokenType.Else],
   ['false', TokenType.False],

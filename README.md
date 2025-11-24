@@ -84,25 +84,31 @@ Lox 语言的运算符优先级（从低到高）：
 
 ### 语法规则（BNF 风格）
 
-```
-program        → statement* EOF
+目前已实现的语法规则如下（与 `Parser.ts` 实现一致）：
 
-statement      → exprStmt | printStmt | block | ifStmt | whileStmt
+```
+program        → declaration*
+
+declaration    → varDecl | statement
+
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";"
+
+statement      → exprStmt
+               | printStmt
+
 exprStmt       → expression ";"
 printStmt      → "print" expression ";"
-block          → "{" statement* "}"
-ifStmt         → "if" "(" expression ")" statement ( "else" statement )?
-whileStmt      → "while" "(" expression ")" statement
 
-expression     → assignment
-assignment     → IDENTIFIER "=" assignment | equality
+expression     → equality
 equality       → comparison ( ( "!=" | "==" ) comparison )*
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )*
 term           → factor ( ( "-" | "+" ) factor )*
 factor         → unary ( ( "/" | "*" ) unary )*
-unary          → ( "!" | "-" ) unary | primary
+unary          → ( "!" | "-" ) unary
+               | primary
 primary        → NUMBER | STRING | "true" | "false" | "nil"
-               | "(" expression ")" | IDENTIFIER
+               | "(" expression ")"
+               | IDENTIFIER
 ```
 
 ### 解析过程示例
@@ -110,9 +116,7 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 **源代码：**
 ```lox
 var name = "Bob";
-if (name == "Bob") {
-  print "Hello, Bob!";
-}
+print name;
 ```
 
 **解析步骤：**
@@ -121,21 +125,19 @@ if (name == "Bob") {
    - 匹配 `var` 关键字
    - 读取标识符 `name`
    - 解析初始化表达式 `"Bob"`
+   - 匹配分号 `;`
 
-2. **识别 if 语句**
-   - 匹配 `if` 关键字
-   - 解析条件表达式 `name == "Bob"`
-   - 解析 then 分支（块语句）
-   - 解析 else 分支（如果有）
+2. **识别打印语句**
+   - 匹配 `print` 关键字
+   - 解析表达式（变量 `name`）
+   - 匹配分号 `;`
 
 3. **构建 AST**
    ```
    Program
      ├─ VarDeclaration(name, "Bob")
-     └─ IfStatement
-         ├─ condition: Binary(name == "Bob")
-         └─ thenBranch: Block
-             └─ PrintStatement("Hello, Bob!")
+     └─ PrintStatement
+         └─ Variable(name)
    ```
 
 ### 错误处理
@@ -148,7 +150,7 @@ if (name == "Bob") {
 **错误示例：**
 ```lox
 var name = "Bob"  // 错误：缺少分号
-if (name == "Bob" // 错误：缺少右括号
+print "Hello"     // 错误：缺少分号
 ```
 
 ### 表达式
@@ -187,13 +189,9 @@ if (name == "Bob" // 错误：缺少右括号
 引用变量：
 - `name` - 获取变量 `name` 的值
 
-#### 赋值表达式
-给变量赋值：
-- `name = "Bob"` - 将 `"Bob"` 赋值给 `name`
-
 ### 语句
 
-语句是执行操作的代码单元。Lox 支持以下语句类型：
+语句是执行操作的代码单元。Lox 目前实现了以下语句类型：
 
 #### 表达式语句
 任何表达式后跟分号：
@@ -211,33 +209,3 @@ if (name == "Bob" // 错误：缺少右括号
 - `print "Hello, world!";`
 - `print 1 + 2;` → 输出 `3`
 - `print name;` → 输出变量 `name` 的值
-
-#### 块语句
-用花括号包裹的语句序列：
-```lox
-{
-  var a = 1;
-  var b = 2;
-  print a + b;
-}
-```
-
-#### 条件语句（if/else）
-根据条件执行不同代码：
-```lox
-if (age > 18) {
-  print "Adult";
-} else {
-  print "Minor";
-}
-```
-
-#### 循环语句（while）
-当条件为真时重复执行：
-```lox
-var i = 0;
-while (i < 5) {
-  print i;
-  i = i + 1;
-}
-```

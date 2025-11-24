@@ -18,12 +18,15 @@ import { Parser } from './parser/Parser';
 import { Interperter } from './execute/Interperter';
 import RuntimeError from './execute/RuntimeError';
 
-import content from '@/grammar/statement/stmt.e';
+import content from '@/grammar/statement/var_stmt.e';
 
 // 错误光标位置
-const errorCursor = reactive({ line: -1, column: -1 });
+const errorCursor = reactive<{
+    line: number;
+    column: number;
+}[]>([]);
 const isErrorAt = (line: number, column: number) =>
-    errorCursor.line === line && errorCursor.column === column;
+    errorCursor.some(item => item.line === line && item.column === column);
 
 // 代码内容
 const vContent = content.split('\n');
@@ -31,8 +34,7 @@ const vContent = content.split('\n');
 
 // 解析代码
 const reportError: ErrorHandler = (line, column, message) => {
-    errorCursor.line = line;
-    errorCursor.column = column;
+    errorCursor.push({ line, column });
     console.warn(`line ${line}, column ${column}: ${message}`);
 };
 
@@ -45,8 +47,7 @@ try {
         throw new Error('解析失败');
 
     const interperter = new Interperter((error: RuntimeError) => {
-        errorCursor.line = error.token.line;
-        errorCursor.column = error.token.column;
+        errorCursor.push({ line: error.token.line, column: error.token.column });
         console.warn(`[${error.token.line}:${error.token.column}] ${error.message}`);
     });
     interperter.interpret(stmts);

@@ -1,8 +1,8 @@
-import { BinaryExpr, Expr, LiteralExpr, UnaryExpr } from "@/ast/Expr";
+import { BinaryExpr, Expr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
-import { ExpressionStmt, PrintStmt, Stmt } from "@/ast/Stmt";
+import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -19,14 +19,41 @@ export class Parser {
     public parse(): Stmt[] | null {
         const statements: Stmt[] = [];
         while (!this.isAtEnd()) {
-            statements.push(this.statement());
+            const declaration = this.declaration();
+            if (declaration) {
+                statements.push(declaration);
+            }
         }
         return statements;
     }
 
-    // 解析语句
+
+
+    private declaration(): Stmt | null {
+        try {
+            if (this.match(TokenType.Var)) {
+                return this.varDeclaration();
+            }
+            return this.statement();
+        } catch (error) {
+            if (error instanceof ParseError) {
+                this.synchronize();
+                return null;
+            }
+            throw error;
+        }
+    }
+
+    private varDeclaration(): Stmt {
+        const name = this.consume(TokenType.Identifier, "Expect variable name.");
+        const initializer = this.match(TokenType.Equal) ? this.expression() : null;
+        this.consume(TokenType.Semicolon, "Expect ';' after variable declaration.");
+        return new VarStmt(name, initializer);
+    }
+
+    // 语句
     private statement(): Stmt {
-        if(this.match(TokenType.Print)) {
+        if (this.match(TokenType.Print)) {
             return this.printStatement();
         }
         return this.expressionStatement();
@@ -193,7 +220,7 @@ export class Parser {
             return new LiteralExpr(this.previous().literal);
         }
         if (this.match(TokenType.Identifier)) {
-            // return new LiteralExpr(this.previous().lexeme);
+            return new VariableExpr(this.previous());
         }
         if (this.match(TokenType.LeftParen)) {
             const expr = this.expression();
