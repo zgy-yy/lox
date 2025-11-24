@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, Expr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
@@ -179,7 +179,7 @@ export class Parser {
      */
 
     private assignment(): Expr {
-        const expr = this.logical_or();
+        const expr = this.conditional();
         if (this.match(TokenType.Equal)) {
             const equals = this.previous();
             const value = this.assignment();
@@ -190,6 +190,26 @@ export class Parser {
         }
         return expr;
     }
+    
+    /**
+     * 条件表达式
+     * conditional → logical_or ( "?" expression ":" expression )?
+     * 条件表达式由逻辑或表达式组成，逻辑或表达式之间用 "?" 和 ":" 连接
+     * 例如：
+     * true ? 1 : 2
+     * false ? 1 : 2
+     */
+    private conditional(): Expr {
+        let expr = this.logical_or();
+        if (this.match(TokenType.Question)) {
+            const trueExpr = this.expression();
+            this.consume(TokenType.Colon, "Expect ':' after '?'.");
+            const falseExpr = this.expression();
+            expr = new ConditionalExpr(expr, trueExpr, falseExpr);
+        }
+        return expr;
+    }
+
     /**
      * 逻辑或表达式
      * logical_or → logical_and ( "or" logical_and )*

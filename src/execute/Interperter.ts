@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
 import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
@@ -89,6 +89,15 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         this.environment.assign(expr.name, value);
         return value;
     }
+
+    visitConditionalExpr(expr: ConditionalExpr): LoxValue {
+        const condition = this.evaluate(expr.condition);
+        if (this.isTruthy(condition)) {
+            return this.evaluate(expr.trueExpr);
+        }
+        return this.evaluate(expr.falseExpr);
+    }
+    
     visitLogicalExpr(expr: LogicalExpr): LoxValue {
         const left = this.evaluate(expr.left);
         switch (expr.operator.type) {

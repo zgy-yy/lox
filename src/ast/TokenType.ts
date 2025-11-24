@@ -16,6 +16,8 @@ export enum TokenType {
     Semicolon = 'SEMICOLON',// ;
     Slash = 'SLASH',// /
     Star = 'STAR',// *
+    Question = 'QUESTION',// ?
+    Colon = 'COLON',// :
     // 多字符 token
     Bang = 'BANG',// !
     BangEqual = 'BANG_EQUAL',// !=

@@ -8,6 +8,7 @@ export abstract class Expr {
 
 export interface ExprVisitor<R> {
     visitAssignExpr(expr: AssignExpr): R;
+    visitConditionalExpr(expr: ConditionalExpr): R;
     visitLogicalExpr(expr: LogicalExpr): R;
     visitBinaryExpr(expr: BinaryExpr): R;
     visitUnaryExpr(expr: UnaryExpr): R;
@@ -34,6 +35,27 @@ export class AssignExpr extends Expr {
     }
 }
 
+
+/**
+ * 条件表达式
+ */
+export class ConditionalExpr extends Expr {
+    condition: Expr;
+    trueExpr: Expr;
+    falseExpr: Expr;
+    constructor(condition: Expr, trueExpr: Expr, falseExpr: Expr) {
+        super();
+        this.condition = condition;
+        this.trueExpr = trueExpr;
+        this.falseExpr = falseExpr;
+    }
+    accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitConditionalExpr(this);
+    }
+}
+
+
+
 /**
  * 逻辑或表达式
  */
@@ -51,6 +73,7 @@ export class LogicalExpr extends Expr {
         return visitor.visitLogicalExpr(this);
     }
 }
+
 
 
 /**

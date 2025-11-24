@@ -74,6 +74,12 @@ export class Scanner {
       case '+':
         this.addToken(TokenType.Plus);
         break;
+      case '?':
+        this.addToken(TokenType.Question);
+        break;
+      case ':':
+        this.addToken(TokenType.Colon);
+        break;
       case ';':
         this.addToken(TokenType.Semicolon);
         break;
