@@ -1,5 +1,6 @@
 import { BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
+import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 
@@ -10,16 +11,17 @@ import RuntimeError from "@/execute/RuntimeError";
  * 实现ExprVisitor接口，用于访问表达式
  * 执行表达式，返回LoxValue
  */
-export class Interperter implements ExprVisitor<LoxValue> {
+export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     constructor(private readonly runtimeErrorHandler: (error: RuntimeError) => void) {
         this.runtimeErrorHandler = runtimeErrorHandler;
     }
 
-    public interpret(expr: Expr) {
+    public interpret(statements: Stmt[]) {
         try {
-            const value = this.execute(expr);
-            console.log(value);
+            for (const statement of statements) {
+                this.execute(statement);
+            }
         } catch (error) {
             if (error instanceof RuntimeError) {
                 this.runtimeErrorHandler(error);
@@ -29,12 +31,29 @@ export class Interperter implements ExprVisitor<LoxValue> {
         }
     }
 
-    private execute(expr: Expr): LoxValue {
+    //执行语句
+    private execute(stmt: Stmt): void {
+         stmt.accept(this);
+    }
+
+    visitExpressionStmt(stmt: ExpressionStmt): void {
+        this.evaluate(stmt.expression);
+    }
+    visitPrintStmt(stmt: PrintStmt): any {
+        const value: LoxValue = this.evaluate(stmt.expression);
+        const v=this.stringify(value);
+        console.log(v);
+        return value;
+    }
+
+    //计算表达式
+    private evaluate(expr: Expr): LoxValue {
         return expr.accept(this);
     }
+    //二元表达式
     visitBinaryExpr(expr: BinaryExpr): LoxValue {
-        const left = this.execute(expr.left);
-        const right = this.execute(expr.right);
+        const left = this.evaluate(expr.left);
+        const right = this.evaluate(expr.right);
         if (typeof left === 'string' && typeof right === 'string') {
             switch (expr.operator.type) {
                 case TokenType.Plus:
@@ -81,7 +100,7 @@ export class Interperter implements ExprVisitor<LoxValue> {
 
 
     visitUnaryExpr(expr: UnaryExpr): LoxValue {
-        const right = this.execute(expr.right);
+        const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
             case TokenType.Bang:
                 return !this.isTruthy(right);
@@ -100,7 +119,7 @@ export class Interperter implements ExprVisitor<LoxValue> {
         return expr.value
     }
     visitGroupingExpr(expr: GroupingExpr): LoxValue {
-        return this.execute(expr.expression);
+        return this.evaluate(expr.expression);
     }
 
     private isTruthy(value: LoxValue): boolean {
@@ -109,6 +128,12 @@ export class Interperter implements ExprVisitor<LoxValue> {
 
     private isEqual(value1: LoxValue, value2: LoxValue): boolean {
         return value1 === value2;
+    }
+
+
+    private stringify(value: LoxValue): string {
+        if (value === null) return "nil";
+        return String(value)
     }
 
 }

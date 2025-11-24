@@ -2,6 +2,7 @@ import { BinaryExpr, Expr, LiteralExpr, UnaryExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
+import { ExpressionStmt, PrintStmt, Stmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -15,18 +16,60 @@ export class Parser {
         this.error = error;
     }
 
-    public parse(): Expr | null {
-        try {
-            return this.expression();
-        } catch (error) {
-            if (error instanceof ParseError) {
-                return null;
-            }
-            throw error;
+    public parse(): Stmt[] | null {
+        const statements: Stmt[] = [];
+        while (!this.isAtEnd()) {
+            statements.push(this.statement());
         }
+        return statements;
+    }
+
+    // 解析语句
+    private statement(): Stmt {
+        if(this.match(TokenType.Print)) {
+            return this.printStatement();
+        }
+        return this.expressionStatement();
     }
 
 
+    /**
+     * 打印语句
+     * printStatement → "print" expression ";"
+     * 打印语句由打印关键字和表达式组成，表达式后面跟一个分号
+     * 例如：
+     * print 1 + 2;
+     * print name;
+     */
+    private printStatement(): Stmt {
+        const value = this.expression();
+        this.consume(TokenType.Semicolon, "Expect ';' after value.");
+        return new PrintStmt(value);
+    }
+
+    /**
+     * 表达式语句
+     * expressionStatement → expression ";"
+     * 表达式语句由表达式组成，表达式后面跟一个分号
+     * 例如：
+     * 1 + 2;
+     * name;
+     */
+    private expressionStatement(): Stmt {
+        const expr = this.expression();
+        this.consume(TokenType.Semicolon, "Expect ';' after expression.");
+        return new ExpressionStmt(expr);
+    }
+
+
+    /**
+     * 表达式
+     * expression → equality
+     * 表达式由相等性表达式组成
+     * 例如：
+     * 1 != 2
+     * 1 == 2
+     */
     private expression(): Expr {
         return this.equality();
     }

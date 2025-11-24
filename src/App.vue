@@ -15,10 +15,10 @@ import { reactive } from 'vue';
 import { Scanner } from '@/parser/Scanner';
 import ErrorHandler from '@/parser/ErrorHandler';
 import { Parser } from './parser/Parser';
-
-import content from '@/grammar/expression/binaryExpr.e';
 import { Interperter } from './execute/Interperter';
 import RuntimeError from './execute/RuntimeError';
+
+import content from '@/grammar/statement/stmt.e';
 
 // 错误光标位置
 const errorCursor = reactive({ line: -1, column: -1 });
@@ -40,8 +40,8 @@ try {
     const scanner = new Scanner(content, reportError);
     const tokens = scanner.scanTokens();
     const parser = new Parser(tokens, reportError);
-    const expr = parser.parse();
-    if (!expr)
+    const stmts = parser.parse();
+    if (!stmts)
         throw new Error('解析失败');
 
     const interperter = new Interperter((error: RuntimeError) => {
@@ -49,9 +49,9 @@ try {
         errorCursor.column = error.token.column;
         console.warn(`[${error.token.line}:${error.token.column}] ${error.message}`);
     });
-    interperter.interpret(expr);
+    interperter.interpret(stmts);
 } catch (e) {
-    console.error(e instanceof Error ? e.message : '未知错误');
+    console.error(e);
 }
 
 

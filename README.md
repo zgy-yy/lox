@@ -85,15 +85,12 @@ Lox 语言的运算符优先级（从低到高）：
 ### 语法规则（BNF 风格）
 
 ```
-program        → declaration* EOF
-
-declaration    → varDecl | statement
-varDecl        → "var" IDENTIFIER ( "=" expression )? ";"
+program        → statement* EOF
 
 statement      → exprStmt | printStmt | block | ifStmt | whileStmt
 exprStmt       → expression ";"
 printStmt      → "print" expression ";"
-block          → "{" declaration* "}"
+block          → "{" statement* "}"
 ifStmt         → "if" "(" expression ")" statement ( "else" statement )?
 whileStmt      → "while" "(" expression ")" statement
 
