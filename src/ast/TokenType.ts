@@ -48,6 +48,7 @@ export enum TokenType {
     Var = 'VAR',// var
     While = 'WHILE',// while
     Do = 'DO',// do
+    Loop = 'LOOP',// loop
     Break = 'BREAK',// break
     Continue = 'CONTINUE',// continue
     // 标识符

@@ -90,6 +90,12 @@ export class Parser {
         if (this.match(TokenType.For)) {
             return this.forStatement();
         }
+        if (this.match(TokenType.Do)) {
+            return this.doWhileStatement();
+        }
+        if (this.match(TokenType.Loop)) {
+            return this.loopStatement();
+        }
         return this.expressionStatement();
     }
 
@@ -127,19 +133,7 @@ export class Parser {
         return new PrintStmt(value);
     }
 
-    /**
-     * 表达式语句
-     * expressionStatement → expression ";"
-     * 表达式语句由表达式组成，表达式后面跟一个分号
-     * 例如：
-     * 1 + 2;
-     * name;
-     */
-    private expressionStatement(): Stmt {
-        const expr = this.expression();
-        this.consume(TokenType.Semicolon, "Expect ';' after expression.");
-        return new ExpressionStmt(expr);
-    }
+
     /**
      * 块语句
      * block → "{" declaration* "}"
@@ -219,7 +213,57 @@ export class Parser {
             body = new BlockStmt([initializer, body]);
         }
         return body;
+    }
 
+    /**
+     * 循环语句
+     * doWhileStatement → "do" statement "while" "(" expression ")" ";"
+     * 循环语句由循环关键字、语句、循环关键字、括号表达式、分号组成
+     * 例如：
+     * do {
+     * statement;
+     * } while (condition);
+     */
+
+    private doWhileStatement(): Stmt {
+        const body = this.statement();
+        this.consume(TokenType.While, "Expect 'while'.");
+        this.consume(TokenType.LeftParen, "Expect '(' after 'while'.");
+        const condition = this.expression();
+        this.consume(TokenType.RightParen, "Expect ')' after condition.");
+        this.consume(TokenType.Semicolon, "Expect ';' after condition.");
+        return new WhileStmt(condition, body);
+    }
+
+
+    /**
+     * 循环语句
+     * loopStatement → "loop" statement 
+     * 循环语句由循环关键字、语句、循环关键字、括号表达式、分号组成
+     * 例如：
+     * loop {
+     * statement;
+     * } 
+     */
+    private loopStatement(): Stmt {
+        const body = this.statement();
+        const condition = new LiteralExpr(true);
+        return new WhileStmt(condition, body);
+    }
+
+
+    /**
+     * 表达式语句
+     * expressionStatement → expression ";"
+     * 表达式语句由表达式组成，表达式后面跟一个分号
+     * 例如：
+     * 1 + 2;
+     * name;
+     */
+    private expressionStatement(): Stmt {
+        const expr = this.expression();
+        this.consume(TokenType.Semicolon, "Expect ';' after expression.");
+        return new ExpressionStmt(expr);
     }
 
 

@@ -16,6 +16,9 @@ const keywords = new Map<string, TokenType>([
   ['for', TokenType.For],
   ['while', TokenType.While],
   ['do', TokenType.Do],
+  ['loop',TokenType.Loop],
+  ['break',TokenType.Break],
+  ['continue',TokenType.Continue],
   ['fun', TokenType.Fun],
   ['return', TokenType.Return],
 
