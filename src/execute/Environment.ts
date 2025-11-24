@@ -6,12 +6,16 @@ import { Token } from "@/ast/Token";
 
 export default class Environment {
     private readonly values: Map<string, LoxValue> = new Map();
-    constructor() {
-        this.values = new Map();
+    private readonly enclosing: Environment | null = null;
+    constructor(enclosing: Environment | null = null) {
+        this.enclosing = enclosing;
     }
     get(name: Token): LoxValue {
         const value = this.values.get(name.lexeme);
         if (value === undefined) {
+            if (this.enclosing !== null) {
+                return this.enclosing.get(name);
+            }
             throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.", name.line, name.column);
         }
         return value;
@@ -22,7 +26,11 @@ export default class Environment {
     assign(name: Token, value: LoxValue): void {
         if (this.values.has(name.lexeme)) {
             this.values.set(name.lexeme, value);
-        } else {
+        }
+        else if (this.enclosing !== null) {
+            this.enclosing.assign(name, value);
+        }
+        else {
             throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.", name.line, name.column);
         }
     }

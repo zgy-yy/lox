@@ -1,6 +1,6 @@
 import { AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
-import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from "@/ast/Stmt";
+import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 import Environment from "./Environment";
@@ -14,7 +14,7 @@ import Environment from "./Environment";
  */
 export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
-    private readonly environment: Environment = new Environment();
+    private environment: Environment = new Environment();
 
     constructor(private readonly runtimeErrorHandler: (error: RuntimeError) => void) {
         this.runtimeErrorHandler = runtimeErrorHandler;
@@ -36,7 +36,23 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     //执行语句
     private execute(stmt: Stmt): void {
-         stmt.accept(this);
+        stmt.accept(this);
+    }
+
+    private executeBlock(statements: Stmt[], environment: Environment): void {
+        const previous = this.environment;
+        try {
+            this.environment = environment;
+            for (const statement of statements) {
+                this.execute(statement);
+            }
+        }
+        finally {
+            this.environment = previous;
+        }
+    }
+    visitBlockStmt(stmt: BlockStmt): void {
+        this.executeBlock(stmt.statements, new Environment(this.environment));
     }
 
     visitExpressionStmt(stmt: ExpressionStmt): void {
@@ -44,7 +60,7 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     }
     visitPrintStmt(stmt: PrintStmt): void {
         const value: LoxValue = this.evaluate(stmt.expression);
-        const v=this.stringify(value);
+        const v = this.stringify(value);
         console.log(v);
     }
 

@@ -8,11 +8,22 @@ export abstract class Stmt {
 }
 
 export interface StmtVisitor<R> {
-    visitExpressionStmt(stmt: ExpressionStmt): R;
+    visitBlockStmt(stmt: BlockStmt): R;
     visitPrintStmt(stmt: PrintStmt): R;
     visitVarStmt(stmt: VarStmt): R;
+    visitExpressionStmt(stmt: ExpressionStmt): R;
 }
 
+export class BlockStmt extends Stmt {
+    statements: Stmt[];
+    constructor(statements: Stmt[]) {
+        super();
+        this.statements = statements;
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitBlockStmt(this);
+    }
+}
 
 export class ExpressionStmt extends Stmt {
     expression: Expr;

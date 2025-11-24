@@ -2,7 +2,7 @@ import { AssignExpr, BinaryExpr, Expr, LiteralExpr, UnaryExpr, VariableExpr } fr
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
-import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from "@/ast/Stmt";
+import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -28,7 +28,14 @@ export class Parser {
     }
 
 
-
+    /**
+     * 声明
+     * declaration → varDecl | statement
+     * 声明由变量声明和语句组成
+     * 例如：
+     * var a = 1;
+     * print a;
+     */
     private declaration(): Stmt | null {
         try {
             if (this.match(TokenType.Var)) {
@@ -44,6 +51,14 @@ export class Parser {
         }
     }
 
+    /**
+     * 变量声明
+     * varDeclaration → "var" IDENTIFIER ( "=" expression )? ";"
+     * 变量声明由变量关键字、标识符和表达式组成，表达式后面跟一个分号
+     * 例如：
+     * var a = 1;
+     * var b = 2;
+     */
     private varDeclaration(): Stmt {
         const name = this.consume(TokenType.Identifier, "Expect variable name.");
         const initializer = this.match(TokenType.Equal) ? this.expression() : null;
@@ -51,10 +66,20 @@ export class Parser {
         return new VarStmt(name, initializer);
     }
 
-    // 语句
+    /**
+     * 语句
+     * statement → printStmt | expressionStatement
+     * 语句由打印语句和表达式语句组成
+     * 例如：
+     * print 1 + 2;
+     * a = 1;
+     */
     private statement(): Stmt {
         if (this.match(TokenType.Print)) {
             return this.printStatement();
+        }
+        if (this.match(TokenType.LeftBrace)) {
+            return new BlockStmt(this.block());
         }
         return this.expressionStatement();
     }
@@ -86,6 +111,27 @@ export class Parser {
         const expr = this.expression();
         this.consume(TokenType.Semicolon, "Expect ';' after expression.");
         return new ExpressionStmt(expr);
+    }
+    /**
+     * 块语句
+     * block → "{" declaration* "}"
+     * 块语句由大括号包围的声明组成
+     * 例如：
+     * {
+     * var a = 1;
+     * print a;
+     * }
+     */
+    private block(): Stmt[] {
+        const statements: Stmt[] = [];
+        while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
+            const stmt = this.declaration();
+            if (stmt) {
+                statements.push(stmt);
+            }
+        }
+        this.consume(TokenType.RightBrace, "Expect '}' after block.");
+        return statements;
     }
 
 

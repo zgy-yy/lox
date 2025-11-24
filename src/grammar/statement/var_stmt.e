@@ -4,3 +4,8 @@ a=2;
 print a+b;
 var a=23;
 print a;
+
+{
+    var a;
+    print a;
+}
