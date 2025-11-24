@@ -1,4 +1,4 @@
-import { BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 
 
 
@@ -6,6 +6,9 @@ export class AstPrinter implements ExprVisitor<string> {
     
     print(expr: Expr): string {
         return expr.accept(this);
+    }
+    visitAssignExpr(expr: AssignExpr): string {
+        return this.parenthesize("=", expr.name.lexeme, expr.value);
     }
 
     visitBinaryExpr(expr: BinaryExpr): string {
@@ -29,8 +32,10 @@ export class AstPrinter implements ExprVisitor<string> {
         return expr.name.lexeme;
     }
 
-    private parenthesize(name: string, ...exprs: Expr[]): string {
-        const exprsString = exprs.map(expr => expr.accept(this)).join(' ');
-        return `(${name} ${exprsString})`;
+    private parenthesize(name: string, ...exprs: (Expr|string)[]): string {
+        const argsString = exprs.map(
+            arg => arg instanceof Expr ? arg.accept(this) : arg
+        );
+        return `(${name} ${argsString.join(' ')})`;
     }
 }

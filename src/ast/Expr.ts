@@ -12,6 +12,25 @@ export interface ExprVisitor<R> {
     visitLiteralExpr(expr: LiteralExpr): R;
     visitGroupingExpr(expr: GroupingExpr): R;
     visitVariableExpr(expr: VariableExpr): R;
+    visitAssignExpr(expr: AssignExpr): R;
+}
+
+
+
+/**
+ * 赋值表达式
+ */
+export class AssignExpr extends Expr {
+    name: Token;
+    value: Expr;
+    constructor(name: Token, value: Expr) {
+        super();
+        this.name = name;
+        this.value = value;
+    }
+    accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitAssignExpr(this);
+    }
 }
 
 /**

@@ -9,7 +9,7 @@ export default class Environment {
     constructor() {
         this.values = new Map();
     }
-    get(name: Token): LoxValue  {
+    get(name: Token): LoxValue {
         const value = this.values.get(name.lexeme);
         if (value === undefined) {
             throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.", name.line, name.column);
@@ -18,5 +18,12 @@ export default class Environment {
     }
     define(name: Token, value: LoxValue): void {
         this.values.set(name.lexeme, value);
+    }
+    assign(name: Token, value: LoxValue): void {
+        if (this.values.has(name.lexeme)) {
+            this.values.set(name.lexeme, value);
+        } else {
+            throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.", name.line, name.column);
+        }
     }
 }

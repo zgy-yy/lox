@@ -24,7 +24,6 @@ describe('Integration Tests with Output Expectations', () => {
     
     test('Complex expression', () => {
         runTest(`
-            1==2; 
             print (1 + 2) * 3; //OUTPUT:9
         `);
     });

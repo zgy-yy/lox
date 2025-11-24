@@ -1,4 +1,4 @@
-import { BinaryExpr, Expr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, Expr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
@@ -98,7 +98,29 @@ export class Parser {
      * 1 == 2
      */
     private expression(): Expr {
-        return this.equality();
+        return this.assignment();
+    }
+
+    /**
+     * 赋值表达式
+     * assignment → IDENTIFIER "=" assignment | equality
+     * 赋值表达式由标识符和赋值表达式组成，赋值表达式之间用 "=" 连接
+     * 例如：
+     * a = 1
+     * a = b = 2
+     */
+
+    private assignment(): Expr {
+        const expr = this.equality();
+        if (this.match(TokenType.Equal)) {
+            const equals = this.previous();
+            const value = this.assignment();
+            if (expr instanceof VariableExpr) {
+                return new AssignExpr(expr.name, value);
+            }
+            this.parseError(equals, "Invalid assignment target.");
+        }
+        return expr;
     }
 
     /**
@@ -283,7 +305,7 @@ export class Parser {
 
     private parseError(token: Token, message: string): ParseError {
         this.error(token.line, token.column, message);
-        return new ParseError();
+        return new ParseError(message);
     }
 
     /**

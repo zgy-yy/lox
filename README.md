@@ -89,7 +89,8 @@ Lox 语言的运算符优先级（从低到高）：
 ```
 program        → declaration*
 
-declaration    → varDecl | statement
+declaration    → varDecl
+               | statement
 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";"
 
@@ -99,7 +100,9 @@ statement      → exprStmt
 exprStmt       → expression ";"
 printStmt      → "print" expression ";"
 
-expression     → equality
+expression     → assignment
+assignment     → IDENTIFIER "=" assignment
+               | equality
 equality       → comparison ( ( "!=" | "==" ) comparison )*
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )*
 term           → factor ( ( "-" | "+" ) factor )*
