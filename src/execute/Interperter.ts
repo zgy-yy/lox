@@ -39,11 +39,10 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     visitExpressionStmt(stmt: ExpressionStmt): void {
         this.evaluate(stmt.expression);
     }
-    visitPrintStmt(stmt: PrintStmt): any {
+    visitPrintStmt(stmt: PrintStmt): void {
         const value: LoxValue = this.evaluate(stmt.expression);
         const v=this.stringify(value);
         console.log(v);
-        return value;
     }
 
     //计算表达式
