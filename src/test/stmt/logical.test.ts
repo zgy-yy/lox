@@ -1,5 +1,5 @@
 import { describe, test } from 'vitest';
-import { runTest } from './test-utils';
+import { runTest } from '@/test/test-utils';
 
 describe('Logical Operator Tests', () => {
 

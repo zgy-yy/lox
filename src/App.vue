@@ -18,7 +18,7 @@ import { Parser } from './parser/Parser';
 import { Interperter } from './execute/Interperter';
 import RuntimeError from './execute/RuntimeError';
 
-import content from '@/grammar/statement/var_stmt.e';
+import content from '@/grammar/stmt.e';
 
 // 错误光标位置
 const errorCursor = reactive<{
@@ -41,8 +41,10 @@ const reportError: ErrorHandler = (line, column, message) => {
 try {
     const scanner = new Scanner(content, reportError);
     const tokens = scanner.scanTokens();
+    console.log(tokens);
     const parser = new Parser(tokens, reportError);
     const stmts = parser.parse();
+    console.log(stmts);
     if (!stmts)
         throw new Error('解析失败');
 

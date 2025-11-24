@@ -47,6 +47,9 @@ export enum TokenType {
     True = 'TRUE',// true
     Var = 'VAR',// var
     While = 'WHILE',// while
+    Do = 'DO',// do
+    Break = 'BREAK',// break
+    Continue = 'CONTINUE',// continue
     // 标识符
     Identifier = 'IDENTIFIER',// identifier
     // 字面量

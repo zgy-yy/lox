@@ -2,7 +2,7 @@ import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt } from "@/ast/Stmt";
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -81,8 +81,14 @@ export class Parser {
         if (this.match(TokenType.LeftBrace)) {
             return new BlockStmt(this.block());
         }
-        if(this.match(TokenType.If)){
+        if (this.match(TokenType.If)) {
             return this.ifStatement();
+        }
+        if (this.match(TokenType.While)) {
+            return this.whileStatement();
+        }
+        if (this.match(TokenType.For)) {
+            return this.forStatement();
         }
         return this.expressionStatement();
     }
@@ -155,6 +161,66 @@ export class Parser {
         this.consume(TokenType.RightBrace, "Expect '}' after block.");
         return statements;
     }
+    /**
+     * 循环语句
+     * whileStatement → "while" "(" expression ")" statement
+     * 循环语句由循环关键字、括号表达式、语句组成
+     * 例如：
+     * while (condition) {
+     * statement;
+     * }
+     */
+
+    private whileStatement(): Stmt {
+        this.consume(TokenType.LeftParen, "Expect '(' after 'while'.");
+        const condition = this.expression();
+        this.consume(TokenType.RightParen, "Expect ')' after condition.");
+        const body = this.statement();
+        return new WhileStmt(condition, body);
+    }
+
+    /**
+     * 循环语句
+     * forStatement → "for" "(" expression ";" expression ";" expression ")" statement
+     * 循环语句由循环关键字、括号表达式、语句组成
+     * 例如：
+     * for (condition; condition; condition) {
+     * statement;
+     * }
+     */
+    private forStatement(): Stmt {
+        this.consume(TokenType.LeftParen, "Expect '(' after 'for'.");
+        let initializer: Stmt | null = null;
+        if (this.match(TokenType.Semicolon)) {
+            initializer = null
+        } else if (this.match(TokenType.Var)) {
+            initializer = this.varDeclaration();
+        } else {
+            initializer = this.expressionStatement();
+        }
+
+        let condition: Expr | null =
+            this.check(TokenType.Semicolon) ? null : this.expression();
+        this.consume(TokenType.Semicolon, "Expect ';' after loop condition.");
+
+        let increment: Expr | null =
+            this.check(TokenType.RightParen) ? null : this.expression();
+        this.consume(TokenType.RightParen, "Expect ')' after loop increment.");
+        let body = this.statement();
+
+        if (increment !== null) {
+            body = new BlockStmt([body, new ExpressionStmt(increment)]);
+        }
+        if (condition === null) {
+            condition = new LiteralExpr(true);
+        }
+        body = new WhileStmt(condition, body);
+        if (initializer !== null) {
+            body = new BlockStmt([initializer, body]);
+        }
+        return body;
+
+    }
 
 
     /**
@@ -190,7 +256,7 @@ export class Parser {
         }
         return expr;
     }
-    
+
     /**
      * 条件表达式
      * conditional → logical_or ( "?" expression ":" expression )?
@@ -373,7 +439,8 @@ export class Parser {
             this.consume(TokenType.RightParen, "Expect ')' after expression.");
             return expr;
         }
-        throw this.parseError(this.peek(), "Expect expression.");
+        return new LiteralExpr(null);
+        // throw this.parseError(this.peek(), "Expect expression.");
     }
 
     /**

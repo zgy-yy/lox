@@ -8,17 +8,22 @@ import LoxValue from '@/ast/LoxValue';
 const keywords = new Map<string, TokenType>([
   ['var', TokenType.Var],
   ['class', TokenType.Class],
-  ['else', TokenType.Else],
-  ['false', TokenType.False],
-  ['for', TokenType.For],
-  ['fun', TokenType.Fun],
-  ['if', TokenType.If],  
-  ['nil', TokenType.Nil],
-  ['print', TokenType.Print],
-  ['return', TokenType.Return],  
   ['super', TokenType.Super],
   ['this', TokenType.This],
-  ['true', TokenType.True],  
+  ['if', TokenType.If],
+  ['else', TokenType.Else],
+
+  ['for', TokenType.For],
+  ['while', TokenType.While],
+  ['do', TokenType.Do],
+  ['fun', TokenType.Fun],
+  ['return', TokenType.Return],
+
+  ['nil', TokenType.Nil],
+  ['print', TokenType.Print],
+
+  ['true', TokenType.True],
+  ['false', TokenType.False],
 ]);
 
 // 词法分析器（Scanner）
@@ -87,7 +92,7 @@ export class Scanner {
         this.addToken(this.match('&') ? TokenType.And : TokenType.BitAnd);
         break;
       case '|':
-          this.addToken(this.match('|') ? TokenType.Or : TokenType.BitOr);
+        this.addToken(this.match('|') ? TokenType.Or : TokenType.BitOr);
         break;
       case '*':
         this.addToken(TokenType.Star);

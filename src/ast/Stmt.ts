@@ -13,6 +13,22 @@ export interface StmtVisitor<R> {
     visitVarStmt(stmt: VarStmt): R;
     visitExpressionStmt(stmt: ExpressionStmt): R;
     visitIfStmt(stmt: IfStmt): R;
+    visitWhileStmt(stmt: WhileStmt): R;
+}
+
+
+
+export class WhileStmt extends Stmt {
+    condition: Expr;
+    body: Stmt;
+    constructor(condition: Expr, body: Stmt) {
+        super();
+        this.condition = condition;
+        this.body = body;
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitWhileStmt(this);
+    }
 }
 
 export class IfStmt extends Stmt {
