@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 
 
 
@@ -9,6 +9,9 @@ export class AstPrinter implements ExprVisitor<string> {
     }
     visitAssignExpr(expr: AssignExpr): string {
         return this.parenthesize("=", expr.name.lexeme, expr.value);
+    }
+    visitLogicalExpr(expr: LogicalExpr): string {
+        return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
     }
 
     visitBinaryExpr(expr: BinaryExpr): string {

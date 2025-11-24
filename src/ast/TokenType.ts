@@ -27,8 +27,8 @@ export enum TokenType {
     LessEqual = 'LESS_EQUAL',// <=
     BitAnd = 'BIT_AND',// &
     BitOr = 'BIT_OR',// |
-    And = 'AND',// &    
-    Or = 'OR',// |
+    And = 'AND',// &&    
+    Or = 'OR',// ||
 
     // 关键字
     Class = 'CLASS',// class

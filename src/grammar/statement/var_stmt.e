@@ -7,5 +7,10 @@ print a;
 
 {
     var a;
-    print a;
+    print 12>=12||13<12;
+}
+if(true){
+    print 213;
+}else if(true){
+
 }

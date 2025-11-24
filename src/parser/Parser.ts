@@ -1,8 +1,8 @@
-import { AssignExpr, BinaryExpr, Expr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, Expr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
-import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from "@/ast/Stmt";
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -53,7 +53,7 @@ export class Parser {
 
     /**
      * 变量声明
-     * varDeclaration → "var" IDENTIFIER ( "=" expression )? ";"
+     * varDecl → "var" IDENTIFIER ( "=" expression )? ";"
      * 变量声明由变量关键字、标识符和表达式组成，表达式后面跟一个分号
      * 例如：
      * var a = 1;
@@ -81,9 +81,31 @@ export class Parser {
         if (this.match(TokenType.LeftBrace)) {
             return new BlockStmt(this.block());
         }
+        if(this.match(TokenType.If)){
+            return this.ifStatement();
+        }
         return this.expressionStatement();
     }
 
+    /**
+     * 条件语句
+     * ifStatement → "if" "(" expression ")" statement ( "else" statement )?
+     * 条件语句由条件关键字、括号表达式、语句和可选的 else 语句组成
+     * 例如：
+     * if (condition) {
+     * statement;
+     * } else {
+     * statement;
+     * }
+     */
+    private ifStatement(): Stmt {
+        this.consume(TokenType.LeftParen, "Expect '(' after 'if'.");
+        const condition = this.expression();
+        this.consume(TokenType.RightParen, "Expect ')' after condition.");
+        const thenBranch = this.statement();
+        const elseBranch = this.match(TokenType.Else) ? this.statement() : null;
+        return new IfStmt(condition, thenBranch, elseBranch);
+    }
 
     /**
      * 打印语句
@@ -149,7 +171,7 @@ export class Parser {
 
     /**
      * 赋值表达式
-     * assignment → IDENTIFIER "=" assignment | equality
+     * assignment → IDENTIFIER "=" assignment | logical_or
      * 赋值表达式由标识符和赋值表达式组成，赋值表达式之间用 "=" 连接
      * 例如：
      * a = 1
@@ -157,7 +179,7 @@ export class Parser {
      */
 
     private assignment(): Expr {
-        const expr = this.equality();
+        const expr = this.logical_or();
         if (this.match(TokenType.Equal)) {
             const equals = this.previous();
             const value = this.assignment();
@@ -165,6 +187,42 @@ export class Parser {
                 return new AssignExpr(expr.name, value);
             }
             this.parseError(equals, "Invalid assignment target.");
+        }
+        return expr;
+    }
+    /**
+     * 逻辑或表达式
+     * logical_or → logical_and ( "or" logical_and )*
+     * 逻辑或表达式由逻辑与表达式组成，逻辑与表达式之间用 "or" 连接
+     * 例如：
+     * true or false
+     * true or false and true
+     */
+
+    private logical_or(): Expr {
+        let expr = this.logical_and();
+        while (this.match(TokenType.Or)) {
+            const operator = this.previous();
+            const right = this.logical_and();
+            expr = new LogicalExpr(expr, operator, right);
+        }
+        return expr;
+    }
+    /**
+     * 逻辑与表达式
+     * logical_and → equality ( "and" equality )*
+     * 逻辑与表达式由相等性表达式组成，相等性表达式之间用 "and" 连接
+     * 例如：
+     * true and false
+     * true and false or true
+     */
+
+    private logical_and(): Expr {
+        let expr = this.equality();
+        while (this.match(TokenType.And)) {
+            const operator = this.previous();
+            const right = this.logical_or();
+            expr = new LogicalExpr(expr, operator, right);
         }
         return expr;
     }

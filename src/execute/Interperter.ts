@@ -1,6 +1,6 @@
-import { AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
-import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from "@/ast/Stmt";
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 import Environment from "./Environment";
@@ -69,6 +69,16 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         this.environment.define(stmt.name, value);
     }
 
+    visitIfStmt(stmt: IfStmt): void {
+        const condition: LoxValue = this.evaluate(stmt.condition);
+        if (this.isTruthy(condition)) {
+            this.execute(stmt.thenBranch);
+        } else if (stmt.elseBranch !== null) {
+            this.execute(stmt.elseBranch);
+        }
+    }
+
+
     //计算表达式
     private evaluate(expr: Expr): LoxValue {
         return expr.accept(this);
@@ -78,6 +88,24 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         const value = this.evaluate(expr.value);
         this.environment.assign(expr.name, value);
         return value;
+    }
+    visitLogicalExpr(expr: LogicalExpr): LoxValue {
+        const left = this.evaluate(expr.left);
+        switch (expr.operator.type) {
+            case TokenType.Or:
+                if (this.isTruthy(left)) {
+                    return left;
+                }
+                break;
+            case TokenType.And:
+                if (!this.isTruthy(left)) {
+                    return left;
+                }
+                break;
+            default:
+                break;
+        }
+        return this.evaluate(expr.right);
     }
 
     //二元表达式

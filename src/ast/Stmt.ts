@@ -12,6 +12,23 @@ export interface StmtVisitor<R> {
     visitPrintStmt(stmt: PrintStmt): R;
     visitVarStmt(stmt: VarStmt): R;
     visitExpressionStmt(stmt: ExpressionStmt): R;
+    visitIfStmt(stmt: IfStmt): R;
+}
+
+export class IfStmt extends Stmt {
+    condition: Expr;
+    thenBranch: Stmt;
+    elseBranch: Stmt | null;
+    constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null) {
+        super();
+        this.condition = condition;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
+    }
+
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitIfStmt(this);
+    }
 }
 
 export class BlockStmt extends Stmt {

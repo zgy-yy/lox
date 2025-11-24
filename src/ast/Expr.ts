@@ -7,12 +7,13 @@ export abstract class Expr {
 }
 
 export interface ExprVisitor<R> {
+    visitAssignExpr(expr: AssignExpr): R;
+    visitLogicalExpr(expr: LogicalExpr): R;
     visitBinaryExpr(expr: BinaryExpr): R;
     visitUnaryExpr(expr: UnaryExpr): R;
     visitLiteralExpr(expr: LiteralExpr): R;
     visitGroupingExpr(expr: GroupingExpr): R;
     visitVariableExpr(expr: VariableExpr): R;
-    visitAssignExpr(expr: AssignExpr): R;
 }
 
 
@@ -32,6 +33,25 @@ export class AssignExpr extends Expr {
         return visitor.visitAssignExpr(this);
     }
 }
+
+/**
+ * 逻辑或表达式
+ */
+export class LogicalExpr extends Expr {
+    left: Expr;
+    operator: Token;
+    right: Expr;
+    constructor(left: Expr, operator: Token, right: Expr) {
+        super();
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+    }
+    accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitLogicalExpr(this);
+    }
+}
+
 
 /**
  * 二元表达式
