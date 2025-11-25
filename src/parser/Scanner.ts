@@ -16,9 +16,9 @@ const keywords = new Map<string, TokenType>([
   ['for', TokenType.For],
   ['while', TokenType.While],
   ['do', TokenType.Do],
-  ['loop',TokenType.Loop],
-  ['break',TokenType.Break],
-  ['continue',TokenType.Continue],
+  ['loop', TokenType.Loop],
+  ['break', TokenType.Break],
+  ['continue', TokenType.Continue],
   ['fun', TokenType.Fun],
   ['return', TokenType.Return],
 
@@ -91,6 +91,15 @@ export class Scanner {
       case ';':
         this.addToken(TokenType.Semicolon);
         break;
+      case '^':
+        this.addToken(TokenType.Caret);
+        break;
+      case '~':
+        this.addToken(TokenType.Tilde);
+        break;
+      case '%':
+        this.addToken(TokenType.Percent);
+        break;
       case '&':
         this.addToken(this.match('&') ? TokenType.And : TokenType.BitAnd);
         break;
@@ -107,11 +116,11 @@ export class Scanner {
         this.addToken(this.match('=') ? TokenType.EqualEqual : TokenType.Equal);
         break;
       case '<':
-        this.addToken(this.match('=') ? TokenType.LessEqual : TokenType.Less);
+        this.addToken(this.match('=') ? TokenType.LessEqual : this.match('<') ? TokenType.LessLess : TokenType.Less);
         break;
       case '>':
         this.addToken(
-          this.match('=') ? TokenType.GreaterEqual : TokenType.Greater
+          this.match('=') ? TokenType.GreaterEqual : this.match('>') ? TokenType.GreaterGreater : TokenType.Greater
         );
         break;
       case '/':
@@ -120,6 +129,8 @@ export class Scanner {
           while (this.peek() !== '\n' && !this.isAtEnd()) {
             this.advance();
           }
+        } else if (this.match('*')) {
+          this.multiLineComment();
         } else {
           this.addToken(TokenType.Slash);
         }
@@ -145,6 +156,16 @@ export class Scanner {
           this.error(this.line, this.column, `Unexpected character: ${c}`);
         }
         break;
+    }
+  }
+
+  private multiLineComment(): void {
+    while (!(this.match('*') && this.match('/')) && !this.isAtEnd()) {
+      if (this.peek() === '\n') {
+        this.line++;
+        this.column = 0;
+      }
+      this.advance();
     }
   }
 

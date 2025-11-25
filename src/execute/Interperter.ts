@@ -199,6 +199,8 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
                 return this.isEqual(left, right);
             case TokenType.BangEqual:
                 return !this.isEqual(left, right);
+            case TokenType.Comma:
+                return right;
             default:
                 break;
         }

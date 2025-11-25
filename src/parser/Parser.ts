@@ -301,7 +301,27 @@ export class Parser {
      * 1 == 2
      */
     private expression(): Expr {
-        return this.assignment();
+        return this.comma();
+    }
+
+
+
+    /**
+     * 逗号表达式
+     * comma → assignment ( "," assignment )*
+     * 逗号表达式由赋值表达式组成，赋值表达式之间用 "," 连接
+     * 例如：
+     * 1, 2, 3
+     * a, b, c
+     */
+    private comma(): Expr {
+        let expr = this.assignment();
+        while (this.match(TokenType.Comma)) {
+            const operator = this.previous();
+            const right = this.assignment();
+            expr = new BinaryExpr(expr, operator, right);
+        }
+        return expr;
     }
 
     /**

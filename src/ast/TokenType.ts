@@ -18,6 +18,11 @@ export enum TokenType {
     Star = 'STAR',// *
     Question = 'QUESTION',// ?
     Colon = 'COLON',// :
+    DotDot = 'DOT',// .
+    Percent = 'PERCENT',// %
+    Caret = 'CARET',// ^
+    Tilde = 'TILDE',// ~
+
     // 多字符 token
     Bang = 'BANG',// !
     BangEqual = 'BANG_EQUAL',// !=
@@ -31,6 +36,21 @@ export enum TokenType {
     BitOr = 'BIT_OR',// |
     And = 'AND',// &&    
     Or = 'OR',// ||
+    GreaterGreater = 'GREATER_GREATER',// >>
+    LessLess = 'LESS_LESS',// <<
+    PlusPlus = 'PLUS_PLUS',// ++
+    MinusMinus = 'MINUS_MINUS',// --
+    PlusEqual = 'PLUS_EQUAL',// +=
+    MinusEqual = 'MINUS_EQUAL',// -=
+    StarEqual = 'STAR_EQUAL',// *=
+    SlashEqual = 'SLASH_EQUAL',// /=
+    PercentEqual = 'PERCENT_EQUAL',// %=
+    CaretEqual = 'CARET_EQUAL',// ^=
+    AndEqual = 'AND_EQUAL',// &=
+    OrEqual = 'OR_EQUAL',// |=
+    GreaterGreaterEqual = 'GREATER_GREATER_EQUAL',// >>=
+    LessLessEqual = 'LESS_LESS_EQUAL',// <<=
+    // Arrow = 'ARROW',// =>
 
     // 关键字
     Class = 'CLASS',// class
