@@ -14,6 +14,9 @@ export interface StmtVisitor<R> {
     visitExpressionStmt(stmt: ExpressionStmt): R;
     visitIfStmt(stmt: IfStmt): R;
     visitWhileStmt(stmt: WhileStmt): R;
+    visitForStmt(stmt: ForStmt): R;
+    visitBreakStmt(stmt: BreakStmt): R;
+    visitContinueStmt(stmt: ContinueStmt): R;
 }
 
 
@@ -31,6 +34,31 @@ export class WhileStmt extends Stmt {
     }
 }
 
+export class ForStmt extends Stmt {
+    initializer: Stmt;
+    condition: Expr ;
+    increment: Expr ;
+    body: Stmt;
+
+    constructor(initializer: Stmt, condition: Expr, increment: Expr, body: Stmt) {
+        super();
+        this.initializer = initializer;
+        this.condition = condition;
+        this.increment = increment;
+        this.body = body;
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitForStmt(this);
+    }
+}
+export class BreakStmt extends Stmt {
+    constructor() {
+        super();
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitBreakStmt(this);
+    }
+}
 export class IfStmt extends Stmt {
     condition: Expr;
     thenBranch: Stmt;
@@ -55,6 +83,15 @@ export class BlockStmt extends Stmt {
     }
     accept<R>(visitor: StmtVisitor<R>): R {
         return visitor.visitBlockStmt(this);
+    }
+}
+
+export class ContinueStmt extends Stmt {
+    constructor() {
+        super();
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitContinueStmt(this);
     }
 }
 

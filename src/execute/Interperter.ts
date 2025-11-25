@@ -1,6 +1,6 @@
 import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
+import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 import Environment from "./Environment";
@@ -15,6 +15,8 @@ import Environment from "./Environment";
 export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     private environment: Environment = new Environment();
+    private isBreaking: boolean = false;
+    private isContinuing: boolean = false;
 
     constructor(private readonly runtimeErrorHandler: (error: RuntimeError) => void) {
         this.runtimeErrorHandler = runtimeErrorHandler;
@@ -36,6 +38,9 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     //执行语句
     private execute(stmt: Stmt): void {
+        if (this.isBreaking || this.isContinuing) {
+            return;
+        }
         stmt.accept(this);
     }
 
@@ -81,7 +86,38 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     visitWhileStmt(stmt: WhileStmt): void {
         while (this.isTruthy(this.evaluate(stmt.condition))) {
             this.execute(stmt.body);
+            if (this.isBreaking) {
+                this.isBreaking = false;
+                break;
+            }
+            if (this.isContinuing) {
+                this.isContinuing = false;
+            }
         }
+    }
+
+    visitForStmt(stmt: ForStmt): void {
+        this.execute(stmt.initializer);
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body);
+            if (this.isBreaking) {
+                this.isBreaking = false;
+                break;
+            }
+            if (this.isContinuing) {
+                this.isContinuing = false;
+            }
+            this.evaluate(stmt.increment);
+
+        }
+    }
+
+
+    visitBreakStmt(stmt: BreakStmt): void {
+        this.isBreaking = true;
+    }
+    visitContinueStmt(stmt: ContinueStmt): void {
+        this.isContinuing = true;
     }
 
 

@@ -2,7 +2,7 @@ import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
+import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -10,6 +10,7 @@ export class Parser {
     private current: number = 0;
     private readonly tokens: Token[];
     public error: ErrorHandler;
+    private loopDepth: number = 0;
 
     constructor(tokens: Token[], error: ErrorHandler) {
         this.tokens = tokens;
@@ -96,6 +97,12 @@ export class Parser {
         if (this.match(TokenType.Loop)) {
             return this.loopStatement();
         }
+        if (this.match(TokenType.Break)) {
+            return this.breakStatement();
+        }
+        if (this.match(TokenType.Continue)) {
+            return this.continueStatement();
+        }
         return this.expressionStatement();
     }
 
@@ -169,7 +176,9 @@ export class Parser {
         this.consume(TokenType.LeftParen, "Expect '(' after 'while'.");
         const condition = this.expression();
         this.consume(TokenType.RightParen, "Expect ')' after condition.");
+        this.loopDepth++;
         const body = this.statement();
+        this.loopDepth--;
         return new WhileStmt(condition, body);
     }
 
@@ -184,35 +193,24 @@ export class Parser {
      */
     private forStatement(): Stmt {
         this.consume(TokenType.LeftParen, "Expect '(' after 'for'.");
-        let initializer: Stmt | null = null;
-        if (this.match(TokenType.Semicolon)) {
-            initializer = null
-        } else if (this.match(TokenType.Var)) {
+        let initializer: Stmt
+        if (this.match(TokenType.Var)) {
             initializer = this.varDeclaration();
         } else {
             initializer = this.expressionStatement();
         }
 
-        let condition: Expr | null =
-            this.check(TokenType.Semicolon) ? null : this.expression();
+        let condition: Expr = this.check(TokenType.Semicolon) ? new LiteralExpr(true) : this.expression();
         this.consume(TokenType.Semicolon, "Expect ';' after loop condition.");
 
-        let increment: Expr | null =
-            this.check(TokenType.RightParen) ? null : this.expression();
+        let increment: Expr = this.expression();
         this.consume(TokenType.RightParen, "Expect ')' after loop increment.");
+        this.loopDepth++;
         let body = this.statement();
+        this.loopDepth--;
 
-        if (increment !== null) {
-            body = new BlockStmt([body, new ExpressionStmt(increment)]);
-        }
-        if (condition === null) {
-            condition = new LiteralExpr(true);
-        }
-        body = new WhileStmt(condition, body);
-        if (initializer !== null) {
-            body = new BlockStmt([initializer, body]);
-        }
-        return body;
+
+        return new BlockStmt([new ForStmt(initializer, condition, increment, body)]);
     }
 
     /**
@@ -226,7 +224,9 @@ export class Parser {
      */
 
     private doWhileStatement(): Stmt {
+        this.loopDepth++;
         const body = this.statement();
+        this.loopDepth--;
         this.consume(TokenType.While, "Expect 'while'.");
         this.consume(TokenType.LeftParen, "Expect '(' after 'while'.");
         const condition = this.expression();
@@ -246,9 +246,34 @@ export class Parser {
      * } 
      */
     private loopStatement(): Stmt {
+        this.loopDepth++;
         const body = this.statement();
+        this.loopDepth--;
         const condition = new LiteralExpr(true);
         return new WhileStmt(condition, body);
+    }
+
+    /**
+     * 跳出循环语句
+     * breakStatement → "break" ";"
+     * 跳出循环语句由跳出关键字和分号组成
+     * 例如：
+     * break;
+     */
+    private breakStatement(): Stmt {
+        this.consume(TokenType.Semicolon, "Expect ';' after break.");
+        if (this.loopDepth <= 0) {
+            this.parseError(this.previous(), "Unexpected 'break'.");
+        }
+        return new BreakStmt();
+    }
+
+    private continueStatement(): Stmt {
+        this.consume(TokenType.Semicolon, "Expect ';' after continue.");
+        if (this.loopDepth <= 0) {
+            this.parseError(this.previous(), "Unexpected 'continue'.");
+        }
+        return new ContinueStmt();
     }
 
 
