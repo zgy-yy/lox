@@ -189,6 +189,10 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
                     return left < right;
                 case TokenType.LessEqual:
                     return left <= right;
+                case TokenType.BitOr:
+                    return left | right;
+                case TokenType.Caret:
+                    return left ^ right;
                 default:
                     break;
             }

@@ -393,11 +393,41 @@ export class Parser {
      */
 
     private logical_and(): Expr {
-        let expr = this.equality();
+        let expr = this.bitwise_or();
         while (this.match(TokenType.And)) {
             const operator = this.previous();
             const right = this.logical_or();
             expr = new LogicalExpr(expr, operator, right);
+        }
+        return expr;
+    }
+
+
+    private bitwise_or(): Expr {
+        let expr = this.bitwise_xor();
+        while (this.match(TokenType.BitOr)) {
+            const operator = this.previous();
+            const right = this.bitwise_xor();
+            expr = new BinaryExpr(expr, operator, right);
+        }
+        return expr;
+    }
+    private bitwise_xor(): Expr {
+        let expr = this.bitwise_and();
+        while (this.match(TokenType.Caret)) {
+            const operator = this.previous();
+            const right = this.bitwise_and();
+            expr = new BinaryExpr(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private bitwise_and(): Expr {
+        let expr = this.equality();
+        while (this.match(TokenType.BitAnd)) {
+            const operator = this.previous();
+            const right = this.equality();
+            expr = new BinaryExpr(expr, operator, right);
         }
         return expr;
     }
