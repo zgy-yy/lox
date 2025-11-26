@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
@@ -17,6 +17,11 @@ export class Parser {
         this.error = error;
     }
 
+    /**
+     * 解析 tokens 为语句列表
+     * 将词法分析器生成的 token 序列解析为抽象语法树（AST）
+     * @returns 解析后的语句列表，如果解析失败则返回 null
+     */
     public parse(): Stmt[] | null {
         const statements: Stmt[] = [];
         while (!this.isAtEnd()) {
@@ -69,11 +74,14 @@ export class Parser {
 
     /**
      * 语句
-     * statement → printStmt | expressionStatement
-     * 语句由打印语句和表达式语句组成
+     * statement → printStmt | block | ifStmt | whileStmt | forStmt | doWhileStmt | loopStmt | breakStmt | continueStmt | expressionStatement
+     * 语句由打印语句、块语句、条件语句、循环语句、跳出语句、继续语句和表达式语句组成
      * 例如：
      * print 1 + 2;
      * a = 1;
+     * { var a = 1; }
+     * if (a) print a;
+     * while (a) print a;
      */
     private statement(): Stmt {
         if (this.match(TokenType.Print)) {
@@ -184,12 +192,12 @@ export class Parser {
 
     /**
      * 循环语句
-     * forStatement → "for" "(" expression ";" expression ";" expression ")" statement
-     * 循环语句由循环关键字、括号表达式、语句组成
+     * forStatement → "for" "(" ( varDecl | exprStmt )? ";" expression? ";" expression? ")" statement
+     * 循环语句由循环关键字、初始化语句（可选）、条件表达式（可选）、增量表达式（可选）和循环体组成
      * 例如：
-     * for (condition; condition; condition) {
-     * statement;
-     * }
+     * for (var i = 0; i < 10; i = i + 1) { print i; }
+     * for (; i < 10; i = i + 1) { print i; }
+     * for (var i = 0; ; i = i + 1) { print i; }
      */
     private forStatement(): Stmt {
         this.consume(TokenType.LeftParen, "Expect '(' after 'for'.");
@@ -239,7 +247,7 @@ export class Parser {
     /**
      * 循环语句
      * loopStatement → "loop" statement 
-     * 循环语句由循环关键字、语句、循环关键字、括号表达式、分号组成
+     * 循环语句由循环关键字和循环体组成，等价于 while (true) statement
      * 例如：
      * loop {
      * statement;
@@ -268,6 +276,13 @@ export class Parser {
         return new BreakStmt();
     }
 
+    /**
+     * 继续循环语句
+     * continueStatement → "continue" ";"
+     * 继续循环语句由继续关键字和分号组成
+     * 例如：
+     * continue;
+     */
     private continueStatement(): Stmt {
         this.consume(TokenType.Semicolon, "Expect ';' after continue.");
         if (this.loopDepth <= 0) {
@@ -294,11 +309,11 @@ export class Parser {
 
     /**
      * 表达式
-     * expression → equality
-     * 表达式由相等性表达式组成
+     * expression → comma
+     * 表达式由逗号表达式组成
      * 例如：
-     * 1 != 2
-     * 1 == 2
+     * 1, 2, 3
+     * a = 1, b = 2
      */
     private expression(): Expr {
         return this.comma();
@@ -326,8 +341,9 @@ export class Parser {
 
     /**
      * 赋值表达式
-     * assignment → IDENTIFIER "=" assignment | logical_or
-     * 赋值表达式由标识符和赋值表达式组成，赋值表达式之间用 "=" 连接
+     * assignment → conditional ( "=" assignment )?
+     * 赋值表达式由条件表达式和可选的赋值表达式组成，赋值表达式之间用 "=" 连接
+     * 赋值目标必须是变量表达式
      * 例如：
      * a = 1
      * a = b = 2
@@ -348,7 +364,7 @@ export class Parser {
 
     /**
      * 条件表达式
-     * conditional → logical_or ( "?" expression ":" expression )?
+     * conditional → logical_or ( "?" assignment ":" assignment )?
      * 条件表达式由逻辑或表达式组成，逻辑或表达式之间用 "?" 和 ":" 连接
      * 例如：
      * true ? 1 : 2
@@ -357,9 +373,9 @@ export class Parser {
     private conditional(): Expr {
         let expr = this.logical_or();
         if (this.match(TokenType.Question)) {
-            const trueExpr = this.expression();
+            const trueExpr = this.assignment();
             this.consume(TokenType.Colon, "Expect ':' after '?'.");
-            const falseExpr = this.expression();
+            const falseExpr = this.assignment();
             expr = new ConditionalExpr(expr, trueExpr, falseExpr);
         }
         return expr;
@@ -385,8 +401,8 @@ export class Parser {
     }
     /**
      * 逻辑与表达式
-     * logical_and → equality ( "and" equality )*
-     * 逻辑与表达式由相等性表达式组成，相等性表达式之间用 "and" 连接
+     * logical_and → bitwise_or ( "and" logical_or )*
+     * 逻辑与表达式由按位或表达式组成，逻辑与表达式之间用 "and" 连接
      * 例如：
      * true and false
      * true and false or true
@@ -403,6 +419,14 @@ export class Parser {
     }
 
 
+    /**
+     * 按位或表达式
+     * bitwise_or → bitwise_xor ( "|" bitwise_xor )*
+     * 按位或表达式由按位异或表达式组成，按位异或表达式之间用 "|" 连接
+     * 例如：
+     * 1 | 2
+     * 1 | 2 | 3
+     */
     private bitwise_or(): Expr {
         let expr = this.bitwise_xor();
         while (this.match(TokenType.BitOr)) {
@@ -412,6 +436,15 @@ export class Parser {
         }
         return expr;
     }
+
+    /**
+     * 按位异或表达式
+     * bitwise_xor → bitwise_and ( "^" bitwise_and )*
+     * 按位异或表达式由按位与表达式组成，按位与表达式之间用 "^" 连接
+     * 例如：
+     * 1 ^ 2
+     * 1 ^ 2 ^ 3
+     */
     private bitwise_xor(): Expr {
         let expr = this.bitwise_and();
         while (this.match(TokenType.Caret)) {
@@ -422,6 +455,14 @@ export class Parser {
         return expr;
     }
 
+    /**
+     * 按位与表达式
+     * bitwise_and → equality ( "&" equality )*
+     * 按位与表达式由相等性表达式组成，相等性表达式之间用 "&" 连接
+     * 例如：
+     * 1 & 2
+     * 1 & 2 & 3
+     */
     private bitwise_and(): Expr {
         let expr = this.equality();
         while (this.match(TokenType.BitAnd)) {
@@ -454,23 +495,46 @@ export class Parser {
 
     /**
      * 比较表达式
-     * comparison → term (( ">" | ">=" | "<" | "<=" ) term)*
-     * 比较表达式由项表达式组成，项表达式之间用 ">"、">="、"<"、"<=" 连接
+     * comparison → shift ( ( ">" | ">=" | "<" | "<=" ) shift )*
+     * 比较表达式由移位表达式组成，移位表达式之间用 ">"、">="、"<"、"<=" 连接
      * 例如：
      * 1 > 2
+     * 1 >= 2
+     * 1 < 2
+     * 1 <= 2
      */
     private comparison(): Expr {
-        let expr = this.term();
+        let expr = this.shift();
         while (this.match(TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual)) {
+            const operator = this.previous();
+            const right = this.shift();
+            expr = new BinaryExpr(expr, operator, right);
+        }
+        return expr;
+    }
+
+
+    /**
+     * 移位表达式
+     * shift → term ( ( ">>" | "<<" ) term )*
+     * 移位表达式由项表达式组成，项表达式之间用 ">>"、"<<" 连接
+     * 例如：
+     * 1 >> 2
+     * 1 << 2
+     */
+    private shift(): Expr {
+        let expr = this.term();
+        while (this.match(TokenType.GreaterGreater, TokenType.LessLess)) {
             const operator = this.previous();
             const right = this.term();
             expr = new BinaryExpr(expr, operator, right);
         }
         return expr;
     }
+
     /**
      * 项表达式
-     * term → factor (( "-" | "+" ) factor)*
+     * term → factor (( "-" | "+") factor)*
      * 项表达式由因子表达式组成，因子表达式之间用 "-"、"+" 连接
      * 例如：
      * 1 - 2
@@ -488,15 +552,16 @@ export class Parser {
 
     /**
      * 因子表达式
-     * factor → unary ( ( "/" | "*" ) unary )*
-     * 因子表达式由一元表达式组成，一元表达式之间用 "/"、"*" 连接
+     * factor → unary ( ( "/" | "*" | "%" ) unary )*
+     * 因子表达式由一元表达式组成，一元表达式之间用 "/"、"*"、"%" 连接
      * 例如：
      * 1 / 2
      * 1 * 2
+     * 10 % 3
      */
     private factor(): Expr {
         let expr = this.unary();
-        while (this.match(TokenType.Slash, TokenType.Star)) {
+        while (this.match(TokenType.Slash, TokenType.Star, TokenType.Percent)) {
             const operator = this.previous();
             const right = this.unary();
             expr = new BinaryExpr(expr, operator, right);
@@ -505,20 +570,38 @@ export class Parser {
     }
     /**
      * 一元表达式
-     * unary → ( "!" | "-" ) unary | primary
+     * unary → ( "!" | "-" | "~" | "++" | "--" ) unary | postfix
      * 一元表达式由一元操作符和一元表达式组成
      * 例如：
      * !true
      * -1
+     * ++i
+     * --i
      */
     private unary(): Expr {
-
-        while (this.match(TokenType.Bang, TokenType.Minus)) {
+        while (this.match(TokenType.Bang, TokenType.Minus, TokenType.Tilde, TokenType.PlusPlus, TokenType.MinusMinus)) {
             const operator = this.previous();
             const right = this.unary();
             return new UnaryExpr(operator, right);
         }
-        return this.primary();
+        return this.postfix();
+    }
+
+    /**
+     * 后缀表达式
+     * postfix → primary ( "++" | "--" )?
+     * 后缀表达式由主要表达式和可选的后缀操作符组成
+     * 例如：
+     * i++
+     * i--
+     */
+    private postfix(): Expr {
+        let expr = this.primary();
+        if (this.match(TokenType.PlusPlus, TokenType.MinusMinus)) {
+            const operator = this.previous();
+            expr = new PostfixExpr(expr, operator);
+        }
+        return expr;
     }
 
     /**
@@ -562,11 +645,18 @@ export class Parser {
         // throw this.parseError(this.peek(), "Expect expression.");
     }
 
+
     /**
      * 辅助方法
      */
 
-    //消费一个 token
+    /**
+     * 消费一个 token
+     * 如果当前 token 匹配指定类型，则消费它并返回；否则抛出解析错误
+     * @param type 期望的 token 类型
+     * @param message 错误消息
+     * @returns 消费的 token
+     */
     private consume(type: TokenType, message: string): Token {
         if (this.match(type)) {
             return this.previous();
@@ -574,7 +664,12 @@ export class Parser {
         throw this.parseError(this.peek(), message);
     }
 
-
+    /**
+     * 匹配并消费一个 token
+     * 检查当前 token 是否匹配任意一个指定类型，如果匹配则消费并返回 true
+     * @param types 要匹配的 token 类型列表
+     * @returns 是否匹配并消费了 token
+     */
     private match(...types: TokenType[]): boolean {
         for (const type of types) {
             if (this.check(type)) {
@@ -585,12 +680,22 @@ export class Parser {
         return false;
     }
 
+    /**
+     * 检查当前 token 类型
+     * 检查当前 token 是否是指定类型，不消费 token
+     * @param type 要检查的 token 类型
+     * @returns 是否匹配
+     */
     private check(type: TokenType): boolean {
         if (this.isAtEnd()) return false;
         return this.peek().type === type;
     }
 
-    //前进一个 token
+    /**
+     * 前进一个 token
+     * 将当前指针向前移动一位，并返回移动前的 token
+     * @returns 移动前的 token
+     */
     private advance(): Token {
         if (!this.isAtEnd()) {
             this.current++;
@@ -598,21 +703,40 @@ export class Parser {
         return this.previous();
     }
 
-    //判断是否到达末尾
+    /**
+     * 判断是否到达末尾
+     * 检查是否已经解析完所有 token
+     * @returns 是否到达末尾
+     */
     private isAtEnd(): boolean {
         return this.peek().type === TokenType.EOF;
     }
 
-    //获取当前 token
+    /**
+     * 获取当前 token
+     * 返回当前正在解析的 token，不移动指针
+     * @returns 当前 token
+     */
     private peek(): Token {
         return this.tokens[this.current];
     }
 
-    //获取上一个 token
+    /**
+     * 获取上一个 token
+     * 返回最近消费的 token
+     * @returns 上一个 token
+     */
     private previous(): Token {
         return this.tokens[this.current - 1];
     }
 
+    /**
+     * 创建解析错误
+     * 报告解析错误并返回 ParseError 异常
+     * @param token 出错的 token
+     * @param message 错误消息
+     * @returns ParseError 异常
+     */
     private parseError(token: Token, message: string): ParseError {
         this.error(token.line, token.column, message);
         return new ParseError(message);

@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue from "@/ast/LoxValue";
 import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
@@ -183,16 +183,25 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
                     return left / right;
                 case TokenType.Greater:
                     return left > right;
+                case TokenType.Percent:
+                    return left % right;
                 case TokenType.GreaterEqual:
                     return left >= right;
                 case TokenType.Less:
                     return left < right;
                 case TokenType.LessEqual:
                     return left <= right;
+                case TokenType.BitAnd:
+                    return left & right;
                 case TokenType.BitOr:
                     return left | right;
                 case TokenType.Caret:
                     return left ^ right;
+                case TokenType.GreaterGreater:
+                    return left >> right;
+                case TokenType.LessLess:
+                    return left << right;
+
                 default:
                     break;
             }
@@ -216,19 +225,62 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     visitUnaryExpr(expr: UnaryExpr): LoxValue {
         const right = this.evaluate(expr.right);
+        if (typeof right === 'number') {
+            switch (expr.operator.type) {
+                case TokenType.Minus:
+                    return -right;
+                case TokenType.Tilde:
+                    return ~right;
+                case TokenType.PlusPlus:
+                    if (expr.right instanceof VariableExpr) {
+                        this.environment.assign(expr.right.name, right + 1);
+                        return right + 1;
+                    }
+                    break;
+                case TokenType.MinusMinus:
+                    if (expr.right instanceof VariableExpr) {
+                        this.environment.assign(expr.right.name, right - 1);
+                        return right - 1;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
         switch (expr.operator.type) {
             case TokenType.Bang:
-                return !this.isTruthy(right);
-            case TokenType.Minus:
-                if (typeof right === 'number') {
-                    return -right;
-                }
-                break;
+                return !right;
             default:
                 break;
         }
         // 未知的运算符，抛出错误
         throw new RuntimeError(expr.operator, `Unary operator '${expr.operator.lexeme}' cannot be applied to ${typeof right}`, expr.operator.line, expr.operator.column);
+    }
+
+
+
+    visitPostfixExpr(expr: PostfixExpr): LoxValue {
+        const value = this.evaluate(expr.left);
+        if (typeof value === 'number') {
+            switch (expr.operator.type) {
+                case TokenType.PlusPlus:
+                    if (expr.left instanceof VariableExpr) {
+                        this.environment.assign(expr.left.name, value + 1);
+                        return value;
+                    }
+                    break;
+
+                case TokenType.MinusMinus:
+                    if (expr.left instanceof VariableExpr) {
+                        this.environment.assign(expr.left.name, value - 1);
+                        return value;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        throw new RuntimeError(expr.operator, `Postfix operator '${expr.operator.lexeme}' cannot be applied to ${typeof value}`, expr.operator.line, expr.operator.column);
     }
     visitLiteralExpr(expr: LiteralExpr): LoxValue {
         return expr.value

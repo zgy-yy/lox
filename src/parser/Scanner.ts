@@ -77,10 +77,10 @@ export class Scanner {
         this.addToken(TokenType.Dot);
         break;
       case '-':
-        this.addToken(TokenType.Minus);
+        this.addToken(this.match('-') ? TokenType.MinusMinus : TokenType.Minus);
         break;
       case '+':
-        this.addToken(TokenType.Plus);
+        this.addToken(this.match('+') ? TokenType.PlusPlus : TokenType.Plus);
         break;
       case '?':
         this.addToken(TokenType.Question);

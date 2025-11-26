@@ -13,6 +13,7 @@ export interface ExprVisitor<R> {
     visitBinaryExpr(expr: BinaryExpr): R;
     visitUnaryExpr(expr: UnaryExpr): R;
     visitLiteralExpr(expr: LiteralExpr): R;
+    visitPostfixExpr(expr: PostfixExpr): R;
     visitGroupingExpr(expr: GroupingExpr): R;
     visitVariableExpr(expr: VariableExpr): R;
 }
@@ -109,6 +110,23 @@ export class UnaryExpr extends Expr {
     }
     accept<R>(visitor: ExprVisitor<R>): R {
         return visitor.visitUnaryExpr(this);
+    }
+}
+
+
+/**
+ * 后缀表达式
+ */
+export class PostfixExpr extends Expr {
+    left: Expr;
+    operator: Token;
+    constructor(expr: Expr, operator: Token) {
+        super();
+        this.left = expr;
+        this.operator = operator;
+    }
+    accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitPostfixExpr(this);
     }
 }
 /**
