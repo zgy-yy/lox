@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
@@ -601,6 +601,9 @@ export class Parser {
             const operator = this.previous();
             expr = new PostfixExpr(expr, operator);
         }
+        if (this.match(TokenType.LeftParen)) {
+            expr = this.functionCall(expr);
+        }
         return expr;
     }
 
@@ -645,6 +648,20 @@ export class Parser {
         // throw this.parseError(this.peek(), "Expect expression.");
     }
 
+
+    private functionCall(callee: Expr): Expr {
+        const args: Expr[] = [];
+        if (!this.check(TokenType.RightParen)) {
+            do {
+                if (args.length >= 255) {
+                    this.parseError(this.peek(), "Can't have more than 255 arguments.");
+                }
+                args.push(this.expression());
+            } while (this.match(TokenType.Comma));
+        }
+        const paren = this.consume(TokenType.RightParen, "Expect ')' after arguments.");
+        return new CallExpr(callee, paren, args);
+    }
 
     /**
      * 辅助方法

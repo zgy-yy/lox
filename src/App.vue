@@ -15,7 +15,7 @@ import { reactive } from 'vue';
 import { Scanner } from '@/parser/Scanner';
 import ErrorHandler from '@/parser/ErrorHandler';
 import { Parser } from './parser/Parser';
-import { Interperter } from './execute/Interperter';
+import { Interpreter } from './execute/Interperter';
 import RuntimeError from './execute/RuntimeError';
 
 import content from '@/grammar/stmt.e';
@@ -48,7 +48,7 @@ try {
     if (!stmts)
         throw new Error('解析失败');
 
-    const interperter = new Interperter((error: RuntimeError) => {
+    const interperter = new Interpreter((error: RuntimeError) => {
         errorCursor.push({ line: error.token.line, column: error.token.column });
         console.warn(`[${error.token.line}:${error.token.column}] ${error.message}`);
     });

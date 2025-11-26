@@ -14,6 +14,7 @@ export interface ExprVisitor<R> {
     visitUnaryExpr(expr: UnaryExpr): R;
     visitLiteralExpr(expr: LiteralExpr): R;
     visitPostfixExpr(expr: PostfixExpr): R;
+    visitCallExpr(expr: CallExpr): R;
     visitGroupingExpr(expr: GroupingExpr): R;
     visitVariableExpr(expr: VariableExpr): R;
 }
@@ -129,6 +130,28 @@ export class PostfixExpr extends Expr {
         return visitor.visitPostfixExpr(this);
     }
 }
+
+
+
+export class CallExpr extends Expr {
+    callee: Expr;
+    paren: Token;
+    arguments: Expr[];
+    constructor(callee: Expr, paren: Token, args: Expr[]) {
+        super();
+        this.callee = callee;
+        this.paren = paren;
+        this.arguments = args;
+    }
+
+    accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitCallExpr(this);
+    }
+}
+
+
+
+
 /**
  * 字面量表达式
  */

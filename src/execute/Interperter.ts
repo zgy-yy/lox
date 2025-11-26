@@ -1,9 +1,10 @@
-import { AssignExpr, BinaryExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
-import LoxValue from "@/ast/LoxValue";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import LoxValue, { isLoxCallable, NativeFunction } from "@/ast/LoxValue";
 import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 import Environment from "./Environment";
+import { Token } from "@/ast/Token";
 
 
 
@@ -12,14 +13,17 @@ import Environment from "./Environment";
  * 实现ExprVisitor接口，用于访问表达式
  * 执行表达式，返回LoxValue
  */
-export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
-
-    private environment: Environment = new Environment();
+export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
+    private readonly globals: Environment = new Environment();
+    private environment: Environment = this.globals;
     private isBreaking: boolean = false;
     private isContinuing: boolean = false;
 
     constructor(private readonly runtimeErrorHandler: (error: RuntimeError) => void) {
         this.runtimeErrorHandler = runtimeErrorHandler;
+        this.globals.define(new Token(TokenType.Identifier, "clock", null, 0, 0), new NativeFunction((): LoxValue => {
+            return Date.now();
+        }));
     }
 
     public interpret(statements: Stmt[]) {
@@ -292,6 +296,18 @@ export class Interperter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     visitVariableExpr(expr: VariableExpr): LoxValue {
         return this.environment.get(expr.name);
     }
+
+
+
+    visitCallExpr(expr: CallExpr): LoxValue {
+        const callee = this.evaluate(expr.callee);
+        const args = expr.arguments.map(arg => this.evaluate(arg));
+        if (!isLoxCallable(callee)) {
+            throw new RuntimeError(expr.paren, `Can only call functions and classes.`, expr.paren.line, expr.paren.column);
+        }
+        return callee.call(this, args);
+    }
+
 
     private isTruthy(value: LoxValue): boolean {
         return value !== null && value !== false;

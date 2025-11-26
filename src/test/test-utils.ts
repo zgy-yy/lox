@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import { Scanner } from '@/parser/Scanner';
 import { Parser } from '@/parser/Parser';
-import { Interperter } from '@/execute/Interperter';
+import { Interpreter } from '@/execute/Interperter';
 
 export const runTest = (source: string) => {
     // 1. Extract expectations from source comments
@@ -38,7 +38,7 @@ export const runTest = (source: string) => {
 
         if (statements) {
             const runtimeErrorHandler = vi.fn();
-            const interpreter = new Interperter(runtimeErrorHandler);
+            const interpreter = new Interpreter(runtimeErrorHandler);
             
             interpreter.interpret(statements);
 
