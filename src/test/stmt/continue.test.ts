@@ -11,7 +11,7 @@ describe('Continue Statement Tests', () => {
                 if (i == 3) {
                     continue;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:1
             //OUTPUT:2
@@ -26,7 +26,7 @@ describe('Continue Statement Tests', () => {
                 if (i == 2) {
                     continue;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -41,9 +41,9 @@ describe('Continue Statement Tests', () => {
             while (i < 3) {
                 i = i + 1;
                 continue;
-                print "should not print";
+                print("should not print");
             }
-            print "done";
+            print("done");
             //OUTPUT:done
         `);
     });
@@ -58,7 +58,7 @@ describe('Continue Statement Tests', () => {
                     if (j == 2) {
                         continue;
                     }
-                    print i * 10 + j;
+                    print(i * 10 + j);
                 }
                 i = i + 1;
             }
@@ -78,7 +78,7 @@ describe('Continue Statement Tests', () => {
                     if (j == 1) {
                         continue;
                     }
-                    print i * 10 + j;
+                    print(i * 10 + j);
                 }
             }
             //OUTPUT:0
@@ -96,9 +96,9 @@ describe('Continue Statement Tests', () => {
                 if (i == 2) {
                     continue;
                 }
-                print "before";
-                print i;
-                print "after";
+                print("before");
+                print(i);
+                print("after");
             }
             //OUTPUT:before
             //OUTPUT:0
@@ -121,7 +121,7 @@ describe('Continue Statement Tests', () => {
                     if (i == 3) {
                         continue;
                     }
-                    print i;
+                    print(i);
                 }
             }
             //OUTPUT:1
@@ -137,7 +137,7 @@ describe('Continue Statement Tests', () => {
                 if (i < 3 || i > 6) {
                     continue;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:3
             //OUTPUT:4
@@ -153,7 +153,7 @@ describe('Continue Statement Tests', () => {
                 if (i == 3) {
                     continue;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:1
             //OUTPUT:2
@@ -168,7 +168,7 @@ describe('Continue Statement Tests', () => {
                 if (i != 2) {
                     continue;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:2
         `);
@@ -183,7 +183,7 @@ describe('Continue Statement Tests', () => {
                 }
                 sum = sum + i;
             }
-            print sum;
+            print(sum);
             //OUTPUT:8
         `);
     });
@@ -199,7 +199,7 @@ describe('Continue Statement Tests', () => {
                 if (i >= 5) {
                     break;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:1
             //OUTPUT:3

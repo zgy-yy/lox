@@ -7,7 +7,7 @@ describe('While Loop Tests', () => {
         runTest(`
             var i = 0;
             while (i < 3) {
-                print i;
+                print(i);
                 i = i + 1;
             }
             //OUTPUT:0
@@ -20,7 +20,7 @@ describe('While Loop Tests', () => {
         runTest(`
             var i = 3;
             while (i > 0) {
-                print i;
+                print(i);
                 i = i - 1;
             }
             //OUTPUT:3
@@ -32,9 +32,9 @@ describe('While Loop Tests', () => {
     test('While Loop False Condition', () => {
         runTest(`
             while (false) {
-                print "should not execute";
+                print("should not execute");
             }
-            print "done"; //OUTPUT:done
+            print("done"); //OUTPUT:done
         `);
     });
 
@@ -42,7 +42,7 @@ describe('While Loop Tests', () => {
         runTest(`
             var i = 0;
             while ((i = i + 1) < 3) {
-                print i;
+                print(i);
             }
             //OUTPUT:1
             //OUTPUT:2
@@ -55,7 +55,7 @@ describe('While Loop Tests', () => {
             while (i < 2) {
                 var j = 0;
                 while (j < 2) {
-                    print i + j;
+                    print(i + j);
                     j = j + 1;
                 }
                 i = i + 1;

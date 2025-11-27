@@ -1,6 +1,6 @@
 import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
-import LoxValue, { isLoxCallable, NativeFunction } from "@/ast/LoxValue";
-import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
+import LoxValue, { isLoxCallable, isLoxFunction, LoxFunction, NativeFunction } from "@/ast/LoxValue";
+import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 import Environment from "./Environment";
@@ -14,7 +14,7 @@ import { Token } from "@/ast/Token";
  * 执行表达式，返回LoxValue
  */
 export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
-    private readonly globals: Environment = new Environment();
+    readonly globals: Environment = new Environment();
     private environment: Environment = this.globals;
     private isBreaking: boolean = false;
     private isContinuing: boolean = false;
@@ -23,6 +23,10 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         this.runtimeErrorHandler = runtimeErrorHandler;
         this.globals.define(new Token(TokenType.Identifier, "clock", null, 0, 0), new NativeFunction((): LoxValue => {
             return Date.now();
+        }));
+        this.globals.define(new Token(TokenType.Identifier, "print", null, 0, 0), new NativeFunction((...args: LoxValue[]): LoxValue => {
+            console.log(...args);
+             return null;
         }));
     }
 
@@ -48,7 +52,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         stmt.accept(this);
     }
 
-    private executeBlock(statements: Stmt[], environment: Environment): void {
+    executeBlock(statements: Stmt[], environment: Environment): void {
         const previous = this.environment;
         try {
             this.environment = environment;
@@ -76,6 +80,10 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     visitVarStmt(stmt: VarStmt): void {
         const value: LoxValue = stmt.initializer ? this.evaluate(stmt.initializer) : null;
         this.environment.define(stmt.name, value);
+    }
+
+    visitFunctionStmt(stmt: FunctionStmt): void {
+        this.environment.define(stmt.name, new LoxFunction(stmt));
     }
 
     visitIfStmt(stmt: IfStmt): void {
@@ -294,7 +302,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     }
 
     visitVariableExpr(expr: VariableExpr): LoxValue {
-        return this.environment.get(expr.name);
+        return this.environment.get(expr.name) ;
     }
 
 
@@ -304,6 +312,11 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         const args = expr.arguments.map(arg => this.evaluate(arg));
         if (!isLoxCallable(callee)) {
             throw new RuntimeError(expr.paren, `Can only call functions and classes.`, expr.paren.line, expr.paren.column);
+        }
+        if (isLoxFunction(callee)) {
+            if (args.length !== callee.arity()) {
+                throw new RuntimeError(expr.paren, `Expected ${callee.arity()} arguments but got ${args.length}.`, expr.paren.line, expr.paren.column);
+            }
         }
         return callee.call(this, args);
     }

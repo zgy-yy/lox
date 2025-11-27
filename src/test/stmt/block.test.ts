@@ -13,17 +13,17 @@ describe('Block Statement Tests', () => {
               var b = "outer b";
               {
                 var a = "inner a";
-                print a; //OUTPUT:inner a
-                print b; //OUTPUT:outer b
-                print c; //OUTPUT:global c
+                print(a); //OUTPUT:inner a
+                print(b); //OUTPUT:outer b
+                print(c); //OUTPUT:global c
               }
-              print a; //OUTPUT:outer a
-              print b; //OUTPUT:outer b
-              print c; //OUTPUT:global c
+              print(a); //OUTPUT:outer a
+              print(b); //OUTPUT:outer b
+              print(c); //OUTPUT:global c
             }
-            print a; //OUTPUT:global a
-            print b; //OUTPUT:global b
-            print c; //OUTPUT:global c
+            print(a); //OUTPUT:global a
+            print(b); //OUTPUT:global b
+            print(c); //OUTPUT:global c
         `);
     });
 
@@ -31,7 +31,7 @@ describe('Block Statement Tests', () => {
         runTest(`
             var a = "outer";
             {}
-            print a; //OUTPUT:outer
+            print(a); //OUTPUT:outer
         `);
     });
 
@@ -39,7 +39,7 @@ describe('Block Statement Tests', () => {
         runTest(`
             var a = "outer";
             {{}}
-            print a; //OUTPUT:outer
+            print(a); //OUTPUT:outer
         `);
     });
     
@@ -48,9 +48,9 @@ describe('Block Statement Tests', () => {
             var a = 1;
             {
                 a = 2;
-                print a; //OUTPUT:2
+                print(a); //OUTPUT:2
             }
-            print a; //OUTPUT:2
+            print(a); //OUTPUT:2
         `);
     });
 });

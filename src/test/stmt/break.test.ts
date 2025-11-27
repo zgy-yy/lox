@@ -10,7 +10,7 @@ describe('Break Statement Tests', () => {
                 if (i == 3) {
                     break;
                 }
-                print i;
+                print(i);
                 i = i + 1;
             }
             //OUTPUT:0
@@ -25,7 +25,7 @@ describe('Break Statement Tests', () => {
                 if (i == 3) {
                     break;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -38,10 +38,10 @@ describe('Break Statement Tests', () => {
             var i = 0;
             while (i < 3) {
                 break;
-                print i;
+                print(i);
                 i = i + 1;
             }
-            print "done";
+            print("done");
             //OUTPUT:done
         `);
     });
@@ -55,7 +55,7 @@ describe('Break Statement Tests', () => {
                     if (j == 1) {
                         break;
                     }
-                    print i * 10 + j;
+                    print(i * 10 + j);
                     j = j + 1;
                 }
                 i = i + 1;
@@ -73,7 +73,7 @@ describe('Break Statement Tests', () => {
                     if (j == 1) {
                         break;
                     }
-                    print i * 10 + j;
+                    print(i * 10 + j);
                 }
             }
             //OUTPUT:0
@@ -86,7 +86,7 @@ describe('Break Statement Tests', () => {
         runTest(`
             var i = 0;
             while (true) {
-                print i;
+                print(i);
                 i = i + 1;
                 if (i >= 3) {
                     break;
@@ -101,12 +101,12 @@ describe('Break Statement Tests', () => {
     test('Break After Multiple Iterations', () => {
         runTest(`
             for (var i = 0; i < 10; i = i + 1) {
-                print i;
+                print(i);
                 if (i == 4) {
                     break;
                 }
             }
-            print "after loop";
+            print("after loop");
             //OUTPUT:0
             //OUTPUT:1
             //OUTPUT:2
@@ -124,7 +124,7 @@ describe('Break Statement Tests', () => {
                     if (i == 2) {
                         break;
                     }
-                    print i;
+                    print(i);
                 }
                 i = i + 1;
             }
@@ -137,7 +137,7 @@ describe('Break Statement Tests', () => {
         runTest(`
             for (var i = 0; i < 10; i = i + 1) {
                 if (i > 2 && i < 5) {
-                    print i;
+                    print(i);
                 }
                 if (i == 5) {
                     break;
@@ -155,7 +155,7 @@ describe('Break Statement Tests', () => {
                 if (i == 4) {
                     break;
                 }
-                print i;
+                print(i);
             }
             //OUTPUT:1
             //OUTPUT:2

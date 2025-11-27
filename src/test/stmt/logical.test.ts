@@ -5,21 +5,21 @@ describe('Logical Operator Tests', () => {
 
     test('Logical OR (||)', () => {
         runTest(`
-            print "hi" || 2; //OUTPUT:hi
-            print nil || "yes"; //OUTPUT:yes
-            print false || "yes"; //OUTPUT:yes
-            print false || false; //OUTPUT:false
-            print false || false || "yes"; //OUTPUT:yes
+            print("hi" || 2); //OUTPUT:hi
+            print(null || "yes"); //OUTPUT:yes
+            print(false || "yes"); //OUTPUT:yes
+            print(false || false); //OUTPUT:false
+            print(false || false || "yes"); //OUTPUT:yes
         `);
     });
 
     test('Logical AND (&&)', () => {
         runTest(`
-            print "hi" && 2; //OUTPUT:2
-            print nil && "yes"; //OUTPUT:nil
-            print false && "yes"; //OUTPUT:false
-            print true && "yes"; //OUTPUT:yes
-            print true && true && "yes"; //OUTPUT:yes
+            print("hi" && 2); //OUTPUT:2
+            print(null && "yes"); //OUTPUT:null
+            print(false && "yes"); //OUTPUT:false
+            print(true && "yes"); //OUTPUT:yes
+            print(true && true && "yes"); //OUTPUT:yes
         `);
     });
 
@@ -29,19 +29,19 @@ describe('Logical Operator Tests', () => {
         runTest(`
             var a = "before";
             true || (a = "after"); 
-            print a; //OUTPUT:before
+            print(a); //OUTPUT:before
             
             var b = "before";
             false && (b = "after");
-            print b; //OUTPUT:before
+            print(b); //OUTPUT:before
         `);
     });
 
     test('Mixed Logical Operators', () => {
         runTest(`
-            print true || true && false; //OUTPUT:true
-            print false || true && true; //OUTPUT:true
-            print (false || true) && true; //OUTPUT:true
+            print(true || true && false); //OUTPUT:true
+            print(false || true && true); //OUTPUT:true
+            print((false || true) && true); //OUTPUT:true
         `);
     });
 });

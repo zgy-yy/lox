@@ -1,4 +1,6 @@
 import { Interpreter } from "@/execute/Interperter";
+import { FunctionStmt } from "./Stmt";
+import Environment from "@/execute/Environment";
 
 type LoxValue = number | string | boolean | null | LoxCallable;
 
@@ -34,6 +36,35 @@ export class NativeFunction implements LoxCallable {
 }
 
 
+export class LoxFunction implements LoxCallable {
+    private readonly fun_decl: FunctionStmt;
+    constructor(fun_decl: FunctionStmt) {
+        this.fun_decl = fun_decl;
+    }
+    arity(): number {
+        return this.fun_decl.parameters.length;
+    }
+    call(interpreter: Interpreter, args: LoxValue[]): LoxValue {
+        /**
+         * 创建一个新的环境，并将参数绑定到环境中
+         */
+        const environment = new Environment(interpreter.globals);
+        for (let i = 0; i < this.fun_decl.parameters.length; i++) {
+            environment.define(this.fun_decl.parameters[i], args[i]);
+        }
+        interpreter.executeBlock(this.fun_decl.body, environment);
+        return null;
+    }
+}
+
 export function isLoxCallable(value: any): value is LoxCallable {
+    return value instanceof NativeFunction || value instanceof LoxFunction;
+}
+
+export function isLoxNativeFunction(value: any): value is NativeFunction {
     return value instanceof NativeFunction;
+}
+
+export function isLoxFunction(value: any): value is LoxFunction {
+    return value instanceof LoxFunction;
 }

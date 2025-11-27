@@ -6,7 +6,7 @@ describe('For Loop Tests', () => {
     test('Basic For Loop', () => {
         runTest(`
             for (var i = 0; i < 3; i = i + 1) {
-                print i;
+                print(i);
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -18,7 +18,7 @@ describe('For Loop Tests', () => {
         runTest(`
             var i = 0;
             for (i = 0; i < 3; i = i + 1) {
-                print i;
+                print(i);
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -30,7 +30,7 @@ describe('For Loop Tests', () => {
         runTest(`
             var i = 0;
             for (; i < 2; i = i + 1) {
-                print i;
+                print(i);
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -40,7 +40,7 @@ describe('For Loop Tests', () => {
     test('For Loop without Increment', () => {
         runTest(`
             for (var i = 0; i < 3;) {
-                print i;
+                print(i);
                 i = i + 1;
             }
             //OUTPUT:0
@@ -53,7 +53,7 @@ describe('For Loop Tests', () => {
         runTest(`
             for (var i = 0; i < 2; i = i + 1) {
                 for (var j = 0; j < 2; j = j + 1) {
-                    print i + j;
+                    print(i + j);
                 }
             }
             //OUTPUT:0
@@ -67,10 +67,10 @@ describe('For Loop Tests', () => {
         runTest(`
             var i = "outer";
             for (var i = 0; i < 1; i = i + 1) {
-                print i;
+                print(i);
             }
             //OUTPUT:0
-            print i; 
+            print(i); 
             //OUTPUT:outer
         `);
     });
@@ -78,7 +78,7 @@ describe('For Loop Tests', () => {
     test('Complex Increment Expression', () => {
         runTest(`
             for (var i = 1; i < 10; i = i * 2) {
-                print i;
+                print(i);
             }
             //OUTPUT:1
             //OUTPUT:2
@@ -96,7 +96,7 @@ describe('For Loop Tests', () => {
                 var b = i;
                 a = a + b;
             }
-            print a; //OUTPUT:3
+            print(a); //OUTPUT:3
         `);
     });
 
@@ -104,7 +104,7 @@ describe('For Loop Tests', () => {
         runTest(`
             var i = 0;
             for (; i < 3; i = i + 1);
-            print i; //OUTPUT:3
+            print(i); //OUTPUT:3
         `);
     });
 
@@ -113,9 +113,9 @@ describe('For Loop Tests', () => {
         runTest(`
             var i = 0;
             for (; i < 0; i = i + 1) {
-                print "should not run";
+                print("should not run");
             }
-            print "done"; //OUTPUT:done
+            print("done"); //OUTPUT:done
         `);
     });
     
@@ -123,7 +123,7 @@ describe('For Loop Tests', () => {
         runTest(`
             for (var i = 0; i < 2; i = i + 1) {
                 var i = "shadow";
-                print i;
+                print(i);
             }
             //OUTPUT:shadow
             //OUTPUT:shadow

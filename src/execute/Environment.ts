@@ -2,10 +2,6 @@ import LoxValue from "@/ast/LoxValue";
 import RuntimeError from "./RuntimeError";
 import { Token } from "@/ast/Token";
 
-/**
- * todo 语句支持标签，goto语句
- */
-
 export default class Environment {
     private readonly values: Map<string, LoxValue> = new Map();
     private readonly enclosing: Environment | null = null;

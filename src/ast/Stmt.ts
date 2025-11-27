@@ -11,6 +11,7 @@ export interface StmtVisitor<R> {
     visitBlockStmt(stmt: BlockStmt): R;
     visitPrintStmt(stmt: PrintStmt): R;
     visitVarStmt(stmt: VarStmt): R;
+    visitFunctionStmt(stmt: FunctionStmt): R;
     visitExpressionStmt(stmt: ExpressionStmt): R;
     visitIfStmt(stmt: IfStmt): R;
     visitWhileStmt(stmt: WhileStmt): R;
@@ -129,5 +130,20 @@ export class VarStmt extends Stmt {
     }
     accept<R>(visitor: StmtVisitor<R>): R {
         return visitor.visitVarStmt(this);
+    }
+}
+
+export class FunctionStmt extends Stmt {
+    name: Token;
+    parameters: Token[];
+    body: Stmt[];
+    constructor(name: Token, parameters: Token[], body: Stmt[]) {
+        super();
+        this.name = name;
+        this.parameters = parameters;
+        this.body = body;
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitFunctionStmt(this);
     }
 }

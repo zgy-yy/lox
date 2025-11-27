@@ -59,8 +59,7 @@ export enum TokenType {
     For = 'FOR',// for
     Fun = 'FUN',// fun
     If = 'IF',// if
-    Nil = 'NIL',// nil
-    Print = 'PRINT',// print
+    Null = 'NULL',// null
     Return = 'RETURN',// return
     Super = 'SUPER',// super
     This = 'THIS',// this

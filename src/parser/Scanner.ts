@@ -22,8 +22,7 @@ const keywords = new Map<string, TokenType>([
   ['fun', TokenType.Fun],
   ['return', TokenType.Return],
 
-  ['nil', TokenType.Nil],
-  ['print', TokenType.Print],
+  ['null', TokenType.Null],
 
   ['true', TokenType.True],
   ['false', TokenType.False],

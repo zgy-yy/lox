@@ -2,7 +2,7 @@ import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, LiteralExpr, L
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
-import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
+import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -36,16 +36,22 @@ export class Parser {
 
     /**
      * 声明
-     * declaration → varDecl | statement
-     * 声明由变量声明和语句组成
+     * declaration → varDecl | funDecl | statement
+     * 声明由变量声明、函数声明和语句组成
      * 例如：
      * var a = 1;
+     * fun add(a, b) {
+     * return a + b;
+     * }
      * print a;
      */
     private declaration(): Stmt | null {
         try {
             if (this.match(TokenType.Var)) {
                 return this.varDeclaration();
+            }
+            if (this.match(TokenType.Fun)) {
+                return this.funDeclaration();
             }
             return this.statement();
         } catch (error) {
@@ -72,9 +78,37 @@ export class Parser {
         return new VarStmt(name, initializer);
     }
 
+
+    /**
+     * 函数声明
+     * functionDeclaration → "fun" IDENTIFIER "(" parameters? ")" "{" body "}"
+     * 函数声明由函数关键字、标识符、参数列表、大括号包围的语句列表组成
+     * 例如：
+     * fun add(a, b) {
+     * return a + b;
+     * }
+     */
+    private funDeclaration(): Stmt {
+       const fnName = this.consume(TokenType.Identifier, "Expect function name.");
+       this.consume(TokenType.LeftParen, "Expect '(' after function name.");
+       const parameters: Token[] = [];
+       if (!this.check(TokenType.RightParen)) {
+        do {
+            if (parameters.length >= 255) {
+                this.parseError(this.previous(), "Can't have more than 255 parameters.");
+            }
+            parameters.push(this.consume(TokenType.Identifier, "Expect parameter name."));
+        } while (this.match(TokenType.Comma));
+       }
+       this.consume(TokenType.RightParen, "Expect ')' after parameters.");
+       this.consume(TokenType.LeftBrace, "Expect '{' after parameters.");
+       const body = this.block();
+       return new FunctionStmt(fnName, parameters, body);
+    }
+
     /**
      * 语句
-     * statement → printStmt | block | ifStmt | whileStmt | forStmt | doWhileStmt | loopStmt | breakStmt | continueStmt | expressionStatement
+     * statement →  block | ifStmt | whileStmt | forStmt | doWhileStmt | loopStmt | breakStmt | continueStmt | expressionStatement
      * 语句由打印语句、块语句、条件语句、循环语句、跳出语句、继续语句和表达式语句组成
      * 例如：
      * print 1 + 2;
@@ -84,9 +118,6 @@ export class Parser {
      * while (a) print a;
      */
     private statement(): Stmt {
-        if (this.match(TokenType.Print)) {
-            return this.printStatement();
-        }
         if (this.match(TokenType.LeftBrace)) {
             return new BlockStmt(this.block());
         }
@@ -134,30 +165,9 @@ export class Parser {
         return new IfStmt(condition, thenBranch, elseBranch);
     }
 
-    /**
-     * 打印语句
-     * printStatement → "print" expression ";"
-     * 打印语句由打印关键字和表达式组成，表达式后面跟一个分号
-     * 例如：
-     * print 1 + 2;
-     * print name;
-     */
-    private printStatement(): Stmt {
-        const value = this.expression();
-        this.consume(TokenType.Semicolon, "Expect ';' after value.");
-        return new PrintStmt(value);
-    }
-
 
     /**
-     * 块语句
-     * block → "{" declaration* "}"
-     * 块语句由大括号包围的声明组成
-     * 例如：
-     * {
-     * var a = 1;
-     * print a;
-     * }
+     * 获取块 body
      */
     private block(): Stmt[] {
         const statements: Stmt[] = [];
@@ -589,20 +599,43 @@ export class Parser {
 
     /**
      * 后缀表达式
-     * postfix → primary ( "++" | "--" )?
-     * 后缀表达式由主要表达式和可选的后缀操作符组成
+     * postfix → call ( "++" | "--" )?
+     * 后缀表达式由函数调用和可选的后缀操作符组成
      * 例如：
      * i++
      * i--
+     * f()
+     * f()()
      */
     private postfix(): Expr {
-        let expr = this.primary();
+        let expr = this.call();
         if (this.match(TokenType.PlusPlus, TokenType.MinusMinus)) {
             const operator = this.previous();
+            if (!(expr instanceof VariableExpr)) {
+                this.parseError(operator, "Postfix increment/decrement can only be applied to variables.");
+            }
             expr = new PostfixExpr(expr, operator);
         }
-        if (this.match(TokenType.LeftParen)) {
-            expr = this.functionCall(expr);
+        return expr;
+    }
+
+    /**
+     * 函数调用表达式
+     * call → primary ( "(" arguments? ")" )*
+     * 函数调用由主要表达式和可选的参数列表组成，支持链式调用
+     * 例如：
+     * f()
+     * f(1, 2, 3)
+     * f()()
+     */
+    private call(): Expr {
+        let expr = this.primary();
+        while (true) {
+            if (this.match(TokenType.LeftParen)) {
+                expr = this.functionCall(expr);
+            } else {
+                break;
+            }
         }
         return expr;
     }
@@ -627,7 +660,7 @@ export class Parser {
         if (this.match(TokenType.False)) {
             return new LiteralExpr(false);
         }
-        if (this.match(TokenType.Nil)) {
+        if (this.match(TokenType.Null)) {
             return new LiteralExpr(null);
         }
         if (this.match(TokenType.Number)) {
@@ -656,7 +689,7 @@ export class Parser {
                 if (args.length >= 255) {
                     this.parseError(this.peek(), "Can't have more than 255 arguments.");
                 }
-                args.push(this.expression());
+                args.push(this.assignment());
             } while (this.match(TokenType.Comma));
         }
         const paren = this.consume(TokenType.RightParen, "Expect ')' after arguments.");
@@ -775,7 +808,6 @@ export class Parser {
                 case TokenType.For:
                 case TokenType.If:
                 case TokenType.While:
-                case TokenType.Print:
                 case TokenType.Return:
                     return
             }
