@@ -2,7 +2,7 @@ import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, LiteralExpr, L
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import ErrorHandler from "./ErrorHandler";
-import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
+import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -89,33 +89,31 @@ export class Parser {
      * }
      */
     private funDeclaration(): Stmt {
-       const fnName = this.consume(TokenType.Identifier, "Expect function name.");
-       this.consume(TokenType.LeftParen, "Expect '(' after function name.");
-       const parameters: Token[] = [];
-       if (!this.check(TokenType.RightParen)) {
-        do {
-            if (parameters.length >= 255) {
-                this.parseError(this.previous(), "Can't have more than 255 parameters.");
-            }
-            parameters.push(this.consume(TokenType.Identifier, "Expect parameter name."));
-        } while (this.match(TokenType.Comma));
-       }
-       this.consume(TokenType.RightParen, "Expect ')' after parameters.");
-       this.consume(TokenType.LeftBrace, "Expect '{' after parameters.");
-       const body = this.block();
-       return new FunctionStmt(fnName, parameters, body);
+        const fnName = this.consume(TokenType.Identifier, "Expect function name.");
+        this.consume(TokenType.LeftParen, "Expect '(' after function name.");
+        const parameters: Token[] = [];
+        if (!this.check(TokenType.RightParen)) {
+            do {
+                if (parameters.length >= 255) {
+                    this.parseError(this.previous(), "Can't have more than 255 parameters.");
+                }
+                parameters.push(this.consume(TokenType.Identifier, "Expect parameter name."));
+            } while (this.match(TokenType.Comma));
+        }
+        this.consume(TokenType.RightParen, "Expect ')' after parameters.");
+        this.consume(TokenType.LeftBrace, "Expect '{' after parameters.");
+        const body = this.block();
+        return new FunctionStmt(fnName, parameters, body);
     }
 
     /**
      * 语句
-     * statement →  block | ifStmt | whileStmt | forStmt | doWhileStmt | loopStmt | breakStmt | continueStmt | expressionStatement
-     * 语句由打印语句、块语句、条件语句、循环语句、跳出语句、继续语句和表达式语句组成
+     * statement →  block | ifStmt | whileStmt | forStmt | doWhileStmt | loopStmt | breakStmt | continueStmt | expressionStatement | returnStatement
+     * 语句由块语句、条件语句、循环语句、跳出语句、继续语句和表达式语句组成
      * 例如：
-     * print 1 + 2;
-     * a = 1;
      * { var a = 1; }
-     * if (a) print a;
-     * while (a) print a;
+     * if (a) { var b = 2; }
+     * while (a) { var b = 3; }
      */
     private statement(): Stmt {
         if (this.match(TokenType.LeftBrace)) {
@@ -142,7 +140,26 @@ export class Parser {
         if (this.match(TokenType.Continue)) {
             return this.continueStatement();
         }
+        if (this.match(TokenType.Return)) {
+            return this.returnStatement();
+        }
         return this.expressionStatement();
+    }
+
+
+    /**
+     * 返回语句
+     * returnStatement → "return" expression? ";"
+     * 返回语句由返回关键字和可选的表达式组成，表达式后面跟一个分号
+     * 例如：
+     * return 1;
+     * return;
+     */
+    private returnStatement(): Stmt {
+        const keyword = this.previous();
+        const value = this.match(TokenType.Semicolon) ? null : this.expression();
+        this.consume(TokenType.Semicolon, "Expect ';' after return value.");
+        return new ReturnStmt(keyword, value);
     }
 
     /**

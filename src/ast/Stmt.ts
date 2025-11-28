@@ -9,7 +9,6 @@ export abstract class Stmt {
 
 export interface StmtVisitor<R> {
     visitBlockStmt(stmt: BlockStmt): R;
-    visitPrintStmt(stmt: PrintStmt): R;
     visitVarStmt(stmt: VarStmt): R;
     visitFunctionStmt(stmt: FunctionStmt): R;
     visitExpressionStmt(stmt: ExpressionStmt): R;
@@ -18,6 +17,7 @@ export interface StmtVisitor<R> {
     visitForStmt(stmt: ForStmt): R;
     visitBreakStmt(stmt: BreakStmt): R;
     visitContinueStmt(stmt: ContinueStmt): R;
+    visitReturnStmt(stmt: ReturnStmt): R;
 }
 
 
@@ -108,18 +108,6 @@ export class ExpressionStmt extends Stmt {
     }
 }
 
-export class PrintStmt extends Stmt {
-    expression: Expr;
-    constructor(expression: Expr) {
-        super();
-        this.expression = expression;
-    }
-
-    accept<R>(visitor: StmtVisitor<R>): R {
-        return visitor.visitPrintStmt(this);
-    }
-}
-
 export class VarStmt extends Stmt {
     name: Token;
     initializer: Expr | null;
@@ -145,5 +133,18 @@ export class FunctionStmt extends Stmt {
     }
     accept<R>(visitor: StmtVisitor<R>): R {
         return visitor.visitFunctionStmt(this);
+    }
+}
+
+export class ReturnStmt extends Stmt {
+    keyword: Token;
+    value: Expr | null;
+    constructor(keyword: Token, value: Expr | null) {
+        super();
+        this.keyword = keyword;
+        this.value = value;
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitReturnStmt(this);
     }
 }

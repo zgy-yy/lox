@@ -1,6 +1,6 @@
 import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
-import LoxValue, { isLoxCallable, isLoxFunction, LoxFunction, NativeFunction } from "@/ast/LoxValue";
-import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
+import LoxValue, { isLoxCallable, isLoxFunction, LoxFunction, NativeFunction, Return } from "@/ast/LoxValue";
+import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 import Environment from "./Environment";
@@ -25,7 +25,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
             return Date.now();
         }));
         this.globals.define(new Token(TokenType.Identifier, "print", null, 0, 0), new NativeFunction((...args: LoxValue[]): LoxValue => {
-            console.log(...args);
+            console.log(...args.map(arg => this.stringify(arg)));
              return null;
         }));
     }
@@ -71,11 +71,6 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     visitExpressionStmt(stmt: ExpressionStmt): void {
         this.evaluate(stmt.expression);
     }
-    visitPrintStmt(stmt: PrintStmt): void {
-        const value: LoxValue = this.evaluate(stmt.expression);
-        const v = this.stringify(value);
-        console.log(v);
-    }
 
     visitVarStmt(stmt: VarStmt): void {
         const value: LoxValue = stmt.initializer ? this.evaluate(stmt.initializer) : null;
@@ -84,6 +79,11 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     visitFunctionStmt(stmt: FunctionStmt): void {
         this.environment.define(stmt.name, new LoxFunction(stmt));
+    }
+
+    visitReturnStmt(stmt: ReturnStmt): void {
+        const value: LoxValue = stmt.value ? this.evaluate(stmt.value) : null;
+        throw new Return(value);
     }
 
     visitIfStmt(stmt: IfStmt): void {
@@ -332,8 +332,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
 
     private stringify(value: LoxValue): string {
-        if (value === null) return "nil";
-        return String(value)
+        return value ? value.toString() : "null";
     }
 
 }

@@ -33,6 +33,9 @@ export class NativeFunction implements LoxCallable {
     call(interpreter: Interpreter, args: LoxValue[]): LoxValue {
         return this.jsFunction(...args);
     }
+    toString(): string {
+        return `NativeFunction(${this.jsFunction.toString()})`;
+    }
 }
 
 
@@ -52,8 +55,18 @@ export class LoxFunction implements LoxCallable {
         for (let i = 0; i < this.fun_decl.parameters.length; i++) {
             environment.define(this.fun_decl.parameters[i], args[i]);
         }
-        interpreter.executeBlock(this.fun_decl.body, environment);
+        try {
+            interpreter.executeBlock(this.fun_decl.body, environment);
+        } catch (exception) {
+            if (exception instanceof Return) {
+                return exception.value;
+            }
+            throw exception;
+        }
         return null;
+    }
+    toString(): string {
+        return `<fn ${this.fun_decl.name.lexeme}>`;
     }
 }
 
@@ -67,4 +80,11 @@ export function isLoxNativeFunction(value: any): value is NativeFunction {
 
 export function isLoxFunction(value: any): value is LoxFunction {
     return value instanceof LoxFunction;
+}
+
+export class Return {
+    value: LoxValue;
+    constructor(value: LoxValue) {
+        this.value = value;
+    }
 }
