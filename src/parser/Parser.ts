@@ -157,7 +157,7 @@ export class Parser {
      */
     private returnStatement(): Stmt {
         const keyword = this.previous();
-        const value = this.match(TokenType.Semicolon) ? null : this.expression();
+        const value = this.check(TokenType.Semicolon) ? null : this.expression();
         this.consume(TokenType.Semicolon, "Expect ';' after return value.");
         return new ReturnStmt(keyword, value);
     }

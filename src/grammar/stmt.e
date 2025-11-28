@@ -1,12 +1,11 @@
-
-fun foo(){
-
-    return 1;
-}
-fun bar(){
-    return foo;
-}
-
-var a=2;
-a = bar()();
-print(a);
+                fun makePair() {
+                    var x = 0;
+             
+                    fun getSetX() {
+                        return x;
+                    }
+                    return getSetX;
+                }
+                var getX = makePair();
+                print(getX());
+                //OUTPUT:0

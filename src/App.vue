@@ -35,7 +35,7 @@ const vContent = content.split('\n');
 // 解析代码
 const reportError: ErrorHandler = (line, column, message) => {
     errorCursor.push({ line, column });
-    console.warn(`line ${line}, column ${column}: ${message}`);
+    console.warn(` parser error [line ${line}, column ${column}] ${message}`);
 };
 
 try {
@@ -50,7 +50,7 @@ try {
 
     const interperter = new Interpreter((error: RuntimeError) => {
         errorCursor.push({ line: error.token.line, column: error.token.column });
-        console.warn(`[${error.token.line}:${error.token.column}] ${error.message}`);
+        console.warn(`interpreter error [${error.token.line}:${error.token.column}] ${error.message}`);
     });
     interperter.interpret(stmts);
 } catch (e) {

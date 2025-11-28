@@ -78,7 +78,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     }
 
     visitFunctionStmt(stmt: FunctionStmt): void {
-        this.environment.define(stmt.name, new LoxFunction(stmt));
+        this.environment.define(stmt.name, new LoxFunction(stmt, this.environment));
     }
 
     visitReturnStmt(stmt: ReturnStmt): void {
@@ -332,7 +332,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
 
     private stringify(value: LoxValue): string {
-        return value ? value.toString() : "null";
+        return value!==null? value.toString() : "null";
     }
 
 }
