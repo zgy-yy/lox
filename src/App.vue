@@ -13,12 +13,13 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import { Scanner } from '@/parser/Scanner';
-import ErrorHandler from '@/parser/ErrorHandler';
 import { Parser } from './parser/Parser';
+import { Resolver } from './execute/Resolver';
 import { Interpreter } from './execute/Interperter';
 import RuntimeError from './execute/RuntimeError';
 
 import content from '@/grammar/stmt.e';
+import { Grus } from './Grus';
 
 // 错误光标位置
 const errorCursor = reactive<{
@@ -33,26 +34,13 @@ const vContent = content.split('\n');
 
 
 // 解析代码
-const reportError: ErrorHandler = (line, column, message) => {
+const reportError = (line: number, column: number, message: string) => {
     errorCursor.push({ line, column });
-    console.warn(` parser error [line ${line}, column ${column}] ${message}`);
 };
 
 try {
-    const scanner = new Scanner(content, reportError);
-    const tokens = scanner.scanTokens();
-    console.log(tokens);
-    const parser = new Parser(tokens, reportError);
-    const stmts = parser.parse();
-    console.log(stmts);
-    if (!stmts)
-        throw new Error('解析失败');
-
-    const interperter = new Interpreter((error: RuntimeError) => {
-        errorCursor.push({ line: error.token.line, column: error.token.column });
-        console.warn(`interpreter error [${error.token.line}:${error.token.column}] ${error.message}`);
-    });
-    interperter.interpret(stmts);
+    const grus = new Grus(content, reportError);
+    grus.run();
 } catch (e) {
     console.error(e);
 }

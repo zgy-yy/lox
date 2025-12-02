@@ -19,6 +19,8 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     private isBreaking: boolean = false;
     private isContinuing: boolean = false;
 
+    private readonly locals: Map<Expr, number> = new Map();
+
     constructor(private readonly runtimeErrorHandler: (error: RuntimeError) => void) {
         this.runtimeErrorHandler = runtimeErrorHandler;
         this.globals.define(new Token(TokenType.Identifier, "clock", null, 0, 0), new NativeFunction((): LoxValue => {
@@ -26,13 +28,19 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         }));
         this.globals.define(new Token(TokenType.Identifier, "print", null, 0, 0), new NativeFunction((...args: LoxValue[]): LoxValue => {
             console.log(...args.map(arg => this.stringify(arg)));
-             return null;
+            return null;
         }));
+    }
+
+    public resolve(expr: Expr, distance: number): void {
+        this.locals.set(expr, distance);
     }
 
     public interpret(statements: Stmt[]) {
         try {
-            for (const statement of statements) {
+            const main = new ExpressionStmt(new CallExpr(new VariableExpr(new Token(TokenType.Identifier, "main", null, 0, 0)), new Token(TokenType.Identifier, "main", null, 0, 0), []));
+            const program = [ ...statements,main];
+            for (const statement of program) {
                 this.execute(statement);
             }
         } catch (error) {
@@ -140,7 +148,12 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     visitAssignExpr(expr: AssignExpr): LoxValue {
         const value = this.evaluate(expr.value);
-        this.environment.assign(expr.name, value);
+        const distance = this.locals.get(expr);
+        if (distance !== undefined) {
+            this.environment.assignAt(distance, expr.name, value);
+        } else {
+            this.environment.assign(expr.name, value);
+        }
         return value;
     }
 
@@ -302,7 +315,15 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     }
 
     visitVariableExpr(expr: VariableExpr): LoxValue {
-        return this.environment.get(expr.name) ;
+        return this.lookupVariable(expr.name, expr);
+    }
+
+    private lookupVariable(name: Token, expr: Expr): LoxValue {
+        const distance = this.locals.get(expr);
+        if (distance !== undefined) {
+            return this.environment.getAt(distance, name.lexeme);
+        }
+        return this.globals.get(name);
     }
 
 
@@ -332,7 +353,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
 
     private stringify(value: LoxValue): string {
-        return value!==null? value.toString() : "null";
+        return value !== null ? value.toString() : "null";
     }
 
 }

@@ -32,4 +32,19 @@ export default class Environment {
             throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.", name.line, name.column);
         }
     }
+
+    ancestor(distance: number): Environment {
+        let environment: Environment = this;
+        for (let i = 0; i < distance && environment.enclosing; i++) {
+            environment = environment.enclosing;
+        }
+        return environment;
+    }
+
+    assignAt(distance: number, name: Token, value: LoxValue): void {
+        this.ancestor(distance).values.set(name.lexeme, value);
+    }
+    getAt(distance: number, name: string): LoxValue {
+        return this.ancestor(distance).values.get(name) || null;
+    }
 }

@@ -1,11 +1,15 @@
-                fun makePair() {
-                    var x = 0;
-             
-                    fun getSetX() {
-                        return x;
-                    }
-                    return getSetX;
-                }
-                var getX = makePair();
-                print(getX());
-                //OUTPUT:0
+fun main(){
+var a = "global";
+{
+  fun showA() {
+    print(a);
+  }
+
+  showA();
+  var a = "block";
+  showA();
+}
+
+}
+
+ 

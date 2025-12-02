@@ -1,7 +1,7 @@
 import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
-import ErrorHandler from "./ErrorHandler";
+import { ParserErrorHandler } from "./ErrorHandler";
 import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
@@ -9,10 +9,9 @@ class ParseError extends Error { }
 export class Parser {
     private current: number = 0;
     private readonly tokens: Token[];
-    public error: ErrorHandler;
-    private loopDepth: number = 0;
+    public error: ParserErrorHandler;
 
-    constructor(tokens: Token[], error: ErrorHandler) {
+    constructor(tokens: Token[], error: ParserErrorHandler) {
         this.tokens = tokens;
         this.error = error;
     }
@@ -20,18 +19,39 @@ export class Parser {
     /**
      * 解析 tokens 为语句列表
      * 将词法分析器生成的 token 序列解析为抽象语法树（AST）
+     * 程序由变量声明和函数声明组成
      * @returns 解析后的语句列表，如果解析失败则返回 null
      */
     public parse(): Stmt[] | null {
         const statements: Stmt[] = [];
         while (!this.isAtEnd()) {
-            const declaration = this.declaration();
-            if (declaration) {
-                statements.push(declaration);
+            try {
+                if (this.match(TokenType.Var)) {
+                    const stmt = this.varDeclaration();
+                    if (stmt) {
+                        statements.push(stmt);
+                    }
+                } else if (this.match(TokenType.Fun)) {
+                    const stmt = this.funDeclaration();
+                    if (stmt) {
+                        statements.push(stmt);
+                    }
+                } else {
+                    // 程序顶层只能有变量声明和函数声明
+                    throw this.parseError(this.peek(), "Expect variable or function declaration.");
+
+                }
+            } catch (error) {
+                if (error instanceof ParseError) {
+                    this.synchronize();
+                } else {
+                    throw error;
+                }
             }
         }
         return statements;
     }
+
 
 
     /**
@@ -211,9 +231,7 @@ export class Parser {
         this.consume(TokenType.LeftParen, "Expect '(' after 'while'.");
         const condition = this.expression();
         this.consume(TokenType.RightParen, "Expect ')' after condition.");
-        this.loopDepth++;
         const body = this.statement();
-        this.loopDepth--;
         return new WhileStmt(condition, body);
     }
 
@@ -240,9 +258,7 @@ export class Parser {
 
         let increment: Expr = this.expression();
         this.consume(TokenType.RightParen, "Expect ')' after loop increment.");
-        this.loopDepth++;
         let body = this.statement();
-        this.loopDepth--;
 
 
         return new BlockStmt([new ForStmt(initializer, condition, increment, body)]);
@@ -259,9 +275,7 @@ export class Parser {
      */
 
     private doWhileStatement(): Stmt {
-        this.loopDepth++;
         const body = this.statement();
-        this.loopDepth--;
         this.consume(TokenType.While, "Expect 'while'.");
         this.consume(TokenType.LeftParen, "Expect '(' after 'while'.");
         const condition = this.expression();
@@ -281,9 +295,7 @@ export class Parser {
      * } 
      */
     private loopStatement(): Stmt {
-        this.loopDepth++;
         const body = this.statement();
-        this.loopDepth--;
         const condition = new LiteralExpr(true);
         return new WhileStmt(condition, body);
     }
@@ -297,10 +309,7 @@ export class Parser {
      */
     private breakStatement(): Stmt {
         this.consume(TokenType.Semicolon, "Expect ';' after break.");
-        if (this.loopDepth <= 0) {
-            this.parseError(this.previous(), "Unexpected 'break'.");
-        }
-        return new BreakStmt();
+        return new BreakStmt(this.previous());
     }
 
     /**
@@ -312,10 +321,7 @@ export class Parser {
      */
     private continueStatement(): Stmt {
         this.consume(TokenType.Semicolon, "Expect ';' after continue.");
-        if (this.loopDepth <= 0) {
-            this.parseError(this.previous(), "Unexpected 'continue'.");
-        }
-        return new ContinueStmt();
+        return new ContinueStmt(this.previous());
     }
 
 
@@ -805,7 +811,7 @@ export class Parser {
      * @returns ParseError 异常
      */
     private parseError(token: Token, message: string): ParseError {
-        this.error(token.line, token.column, message);
+        this.error(token, message);
         return new ParseError(message);
     }
 

@@ -53,8 +53,10 @@ export class ForStmt extends Stmt {
     }
 }
 export class BreakStmt extends Stmt {
-    constructor() {
+    keyword: Token;
+    constructor(keyword: Token) {
         super();
+        this.keyword = keyword;
     }
     accept<R>(visitor: StmtVisitor<R>): R {
         return visitor.visitBreakStmt(this);
@@ -88,8 +90,10 @@ export class BlockStmt extends Stmt {
 }
 
 export class ContinueStmt extends Stmt {
-    constructor() {
+    keyword: Token;
+    constructor(keyword: Token) {
         super();
+        this.keyword = keyword;
     }
     accept<R>(visitor: StmtVisitor<R>): R {
         return visitor.visitContinueStmt(this);
