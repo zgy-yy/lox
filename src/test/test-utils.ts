@@ -1,7 +1,5 @@
 import { expect, vi } from 'vitest';
-import { Scanner } from '@/parser/Scanner';
-import { Parser } from '@/parser/Parser';
-import { Interpreter } from '@/execute/Interperter';
+import { Grus } from '@/Grus';
 
 export const runTest = (source: string) => {
     // 1. Extract expectations from source comments
@@ -22,29 +20,18 @@ export const runTest = (source: string) => {
     const logSpy = vi.spyOn(console, 'log')
 
     try {
-        // 2. Parse and Execute
-        const errorHandler = vi.fn();
-        const scanner = new Scanner(source, errorHandler);
-        const tokens = scanner.scanTokens();
-        const parser = new Parser(tokens, errorHandler);
-        const statements = parser.parse();
+        // 2. Parse and Execute using Grus
+        const reportError = vi.fn();
+        const grus = new Grus(source, reportError);
+        
+        grus.run();
 
-        // Expect no parse errors
-        if (errorHandler.mock.calls.length > 0) {
-             // Optionally print parsing errors for debugging
-             console.error('Parse errors:', errorHandler.mock.calls);
+        // Expect no errors (scanner, parser, resolver, or interpreter errors)
+        if (reportError.mock.calls.length > 0) {
+            // Optionally print errors for debugging
+            console.error('Errors:', reportError.mock.calls);
         }
-        expect(errorHandler).not.toHaveBeenCalled();
-
-        if (statements) {
-            const runtimeErrorHandler = vi.fn();
-            const interpreter = new Interpreter(runtimeErrorHandler);
-            
-            interpreter.interpret(statements);
-
-            // Expect no runtime errors
-            expect(runtimeErrorHandler).not.toHaveBeenCalled();
-        }
+        expect(reportError).not.toHaveBeenCalled();
 
         // 3. Verify Output
         const actualOutputs = logSpy.mock.calls.map((args: any[]) => String(args[0]));

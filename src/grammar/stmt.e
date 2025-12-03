@@ -1,15 +1,7 @@
-fun main(){
-var a = "global";
-{
-  fun showA() {
-    print(a);
-  }
-
-  showA();
-  var a = "block";
-  showA();
-}
-
-}
-
- 
+        fun main(){
+                var i = 0;
+                while (i < 3) {
+                    print(i);
+                    i = i + 1;
+                }
+            }

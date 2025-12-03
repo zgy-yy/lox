@@ -5,13 +5,15 @@ describe('Break Statement Tests', () => {
 
     test('Break in While Loop', () => {
         runTest(`
-            var i = 0;
-            while (i < 5) {
-                if (i == 3) {
-                    break;
+            fun main(){
+                var i = 0;
+                while (i < 5) {
+                    if (i == 3) {
+                        break;
+                    }
+                    print(i);
+                    i = i + 1;
                 }
-                print(i);
-                i = i + 1;
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -21,11 +23,13 @@ describe('Break Statement Tests', () => {
 
     test('Break in For Loop', () => {
         runTest(`
-            for (var i = 0; i < 5; i = i + 1) {
-                if (i == 3) {
-                    break;
+            fun main(){
+                for (var i = 0; i < 5; i = i + 1) {
+                    if (i == 3) {
+                        break;
+                    }
+                    print(i);
                 }
-                print(i);
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -35,30 +39,34 @@ describe('Break Statement Tests', () => {
 
     test('Break at Loop Start', () => {
         runTest(`
-            var i = 0;
-            while (i < 3) {
-                break;
-                print(i);
-                i = i + 1;
+            fun main(){
+                var i = 0;
+                while (i < 3) {
+                    break;
+                    print(i);
+                    i = i + 1;
+                }
+                print("done");
             }
-            print("done");
             //OUTPUT:done
         `);
     });
 
     test('Break in Nested While Loops', () => {
         runTest(`
-            var i = 0;
-            while (i < 3) {
-                var j = 0;
-                while (j < 3) {
-                    if (j == 1) {
-                        break;
+            fun main(){
+                var i = 0;
+                while (i < 3) {
+                    var j = 0;
+                    while (j < 3) {
+                        if (j == 1) {
+                            break;
+                        }
+                        print(i * 10 + j);
+                        j = j + 1;
                     }
-                    print(i * 10 + j);
-                    j = j + 1;
+                    i = i + 1;
                 }
-                i = i + 1;
             }
             //OUTPUT:0
             //OUTPUT:10
@@ -68,12 +76,14 @@ describe('Break Statement Tests', () => {
 
     test('Break in Nested For Loops', () => {
         runTest(`
-            for (var i = 0; i < 3; i = i + 1) {
-                for (var j = 0; j < 3; j = j + 1) {
-                    if (j == 1) {
-                        break;
+            fun main(){
+                for (var i = 0; i < 3; i = i + 1) {
+                    for (var j = 0; j < 3; j = j + 1) {
+                        if (j == 1) {
+                            break;
+                        }
+                        print(i * 10 + j);
                     }
-                    print(i * 10 + j);
                 }
             }
             //OUTPUT:0
@@ -84,12 +94,14 @@ describe('Break Statement Tests', () => {
 
     test('Break with Condition', () => {
         runTest(`
-            var i = 0;
-            while (true) {
-                print(i);
-                i = i + 1;
-                if (i >= 3) {
-                    break;
+            fun main(){
+                var i = 0;
+                while (true) {
+                    print(i);
+                    i = i + 1;
+                    if (i >= 3) {
+                        break;
+                    }
                 }
             }
             //OUTPUT:0
@@ -100,13 +112,15 @@ describe('Break Statement Tests', () => {
 
     test('Break After Multiple Iterations', () => {
         runTest(`
-            for (var i = 0; i < 10; i = i + 1) {
-                print(i);
-                if (i == 4) {
-                    break;
+            fun main(){
+                for (var i = 0; i < 10; i = i + 1) {
+                    print(i);
+                    if (i == 4) {
+                        break;
+                    }
                 }
+                print("after loop");
             }
-            print("after loop");
             //OUTPUT:0
             //OUTPUT:1
             //OUTPUT:2
@@ -118,15 +132,17 @@ describe('Break Statement Tests', () => {
 
     test('Break in Loop with Block', () => {
         runTest(`
-            var i = 0;
-            while (i < 5) {
-                {
-                    if (i == 2) {
-                        break;
+            fun main(){
+                var i = 0;
+                while (i < 5) {
+                    {
+                        if (i == 2) {
+                            break;
+                        }
+                        print(i);
                     }
-                    print(i);
+                    i = i + 1;
                 }
-                i = i + 1;
             }
             //OUTPUT:0
             //OUTPUT:1
@@ -135,12 +151,14 @@ describe('Break Statement Tests', () => {
 
     test('Break with Multiple Conditions', () => {
         runTest(`
-            for (var i = 0; i < 10; i = i + 1) {
-                if (i > 2 && i < 5) {
-                    print(i);
-                }
-                if (i == 5) {
-                    break;
+            fun main(){
+                for (var i = 0; i < 10; i = i + 1) {
+                    if (i > 2 && i < 5) {
+                        print(i);
+                    }
+                    if (i == 5) {
+                        break;
+                    }
                 }
             }
             //OUTPUT:3
@@ -150,12 +168,14 @@ describe('Break Statement Tests', () => {
 
     test('Break in While Loop with Side Effects', () => {
         runTest(`
-            var i = 0;
-            while ((i = i + 1) < 10) {
-                if (i == 4) {
-                    break;
+            fun main(){
+                var i = 0;
+                while ((i = i + 1) < 10) {
+                    if (i == 4) {
+                        break;
+                    }
+                    print(i);
                 }
-                print(i);
             }
             //OUTPUT:1
             //OUTPUT:2

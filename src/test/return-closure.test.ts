@@ -8,7 +8,9 @@ describe('Return Statement Tests', () => {
                 fun getFive() {
                     return 5;
                 }
-                print(getFive());
+                fun main(){
+                    print(getFive());
+                }
                 //OUTPUT:5
             `);
         });
@@ -18,8 +20,10 @@ describe('Return Statement Tests', () => {
                 fun doNothing() {
                     return;
                 }
-                var result = doNothing();
-                print(result);
+                fun main(){
+                    var result = doNothing();
+                    print(result);
+                }
                 //OUTPUT:null
             `);
         });
@@ -29,7 +33,9 @@ describe('Return Statement Tests', () => {
                 fun greet() {
                     return "Hello";
                 }
-                print(greet());
+                fun main(){
+                    print(greet());
+                }
                 //OUTPUT:Hello
             `);
         });
@@ -39,7 +45,9 @@ describe('Return Statement Tests', () => {
                 fun isTrue() {
                     return true;
                 }
-                print(isTrue());
+                fun main(){
+                    print(isTrue());
+                }
                 //OUTPUT:true
             `);
         });
@@ -51,7 +59,9 @@ describe('Return Statement Tests', () => {
                 fun add(a, b) {
                     return a + b;
                 }
-                print(add(2, 3));
+                fun main(){
+                    print(add(2, 3));
+                }
                 //OUTPUT:5
             `);
         });
@@ -65,9 +75,11 @@ describe('Return Statement Tests', () => {
                         return b;
                     }
                 }
-                print(max(5, 3));
+                fun main(){
+                    print(max(5, 3));
+                    print(max(2, 8));
+                }
                 //OUTPUT:5
-                print(max(2, 8));
                 //OUTPUT:8
             `);
         });
@@ -80,9 +92,11 @@ describe('Return Statement Tests', () => {
                     }
                     return true;
                 }
-                print(checkPositive(5));
+                fun main(){
+                    print(checkPositive(5));
+                    print(checkPositive(-1));
+                }
                 //OUTPUT:true
-                print(checkPositive(-1));
                 //OUTPUT:false
             `);
         });
@@ -101,7 +115,9 @@ describe('Return Statement Tests', () => {
                     }
                     return -1;
                 }
-                print(findFirstEven());
+                fun main(){
+                    print(findFirstEven());
+                }
                 //OUTPUT:2
             `);
         });
@@ -116,7 +132,9 @@ describe('Return Statement Tests', () => {
                     }
                     return -1;
                 }
-                print(findValue(3));
+                fun main(){
+                    print(findValue(3));
+                }
                 //OUTPUT:3
             `);
         });
@@ -131,7 +149,9 @@ describe('Return Statement Tests', () => {
                     }
                     return inner();
                 }
-                print(outer());
+                fun main(){
+                    print(outer());
+                }
                 //OUTPUT:42
             `);
         });
@@ -147,7 +167,9 @@ describe('Return Statement Tests', () => {
                     }
                     return level2();
                 }
-                print(level1());
+                fun main(){
+                    print(level1());
+                }
                 //OUTPUT:3
             `);
         });
@@ -159,7 +181,9 @@ describe('Return Statement Tests', () => {
                 fun calculate() {
                     return 2 * 3 + 4;
                 }
-                print(calculate());
+                fun main(){
+                    print(calculate());
+                }
                 //OUTPUT:10
             `);
         });
@@ -172,7 +196,9 @@ describe('Return Statement Tests', () => {
                 fun quadruple(n) {
                     return double(double(n));
                 }
-                print(quadruple(5));
+                fun main(){
+                    print(quadruple(5));
+                }
                 //OUTPUT:20
             `);
         });
@@ -191,12 +217,14 @@ describe('Closure Tests', () => {
                     }
                     return counter;
                 }
-                var counter = makeCounter();
-                print(counter());
+                fun main(){
+                    var counter = makeCounter();
+                    print(counter());
+                    print(counter());
+                    print(counter());
+                }
                 //OUTPUT:1
-                print(counter());
                 //OUTPUT:2
-                print(counter());
                 //OUTPUT:3
             `);
         });
@@ -211,11 +239,13 @@ describe('Closure Tests', () => {
                     }
                     return add;
                 }
-                var addFive = makeAdder(5);
-                print(addFive(3));
+                fun main(){
+                    var addFive = makeAdder(5);
+                    print(addFive(3));
+                    var addTen = makeAdder(10);
+                    print(addTen(7));
+                }
                 //OUTPUT:8
-                var addTen = makeAdder(10);
-                print(addTen(7));
                 //OUTPUT:17
             `);
         });
@@ -228,11 +258,13 @@ describe('Closure Tests', () => {
                     }
                     return multiply;
                 }
-                var double = makeMultiplier(2);
-                print(double(5));
+                fun main(){
+                    var double = makeMultiplier(2);
+                    print(double(5));
+                    var triple = makeMultiplier(3);
+                    print(triple(4));
+                }
                 //OUTPUT:10
-                var triple = makeMultiplier(3);
-                print(triple(4));
                 //OUTPUT:12
             `);
         });
@@ -250,9 +282,11 @@ describe('Closure Tests', () => {
                     }
                     return middle;
                 }
-                var mid = outer(1);
-                var inner = mid(2);
-                print(inner(3));
+                fun main(){
+                    var mid = outer(1);
+                    var inner = mid(2);
+                    print(inner(3));
+                }
                 //OUTPUT:6
             `);
         });
@@ -273,11 +307,13 @@ describe('Closure Tests', () => {
                     }
                     return getIncrement;
                 }
-                var getInc = createChain();
-                var inc = getInc();
-                print(inc());
+                fun main(){
+                    var getInc = createChain();
+                    var inc = getInc();
+                    print(inc());
+                    print(inc());
+                }
                 //OUTPUT:1
-                print(inc());
                 //OUTPUT:2
             `);
         });
@@ -294,15 +330,17 @@ describe('Closure Tests', () => {
                     }
                     return counter;
                 }
-                var counter1 = makeCounter();
-                var counter2 = makeCounter();
-                print(counter1());
+                fun main(){
+                    var counter1 = makeCounter();
+                    var counter2 = makeCounter();
+                    print(counter1());
+                    print(counter1());
+                    print(counter2());
+                    print(counter2());
+                }
                 //OUTPUT:1
-                print(counter1());
                 //OUTPUT:2
-                print(counter2());
                 //OUTPUT:1
-                print(counter2());
                 //OUTPUT:2
             `);
         });
@@ -317,12 +355,14 @@ describe('Closure Tests', () => {
                     }
                     return accumulate;
                 }
-                var acc = makeAccumulator();
-                print(acc(5));
+                fun main(){
+                    var acc = makeAccumulator();
+                    print(acc(5));
+                    print(acc(10));
+                    print(acc(20));
+                }
                 //OUTPUT:5
-                print(acc(10));
                 //OUTPUT:15
-                print(acc(20));
                 //OUTPUT:35
             `);
         });
@@ -338,8 +378,10 @@ describe('Closure Tests', () => {
                     }
                     return getValue;
                 }
-                var getter = makeGetter();
-                print(getter());
+                fun main(){
+                    var getter = makeGetter();
+                    print(getter());
+                }
                 //OUTPUT:42
             `);
         });
@@ -363,11 +405,13 @@ describe('Closure Tests', () => {
                         return negative;
                     }
                 }
-                var pos = makeConditional(5);
-                print(pos());
+                fun main(){
+                    var pos = makeConditional(5);
+                    print(pos());
+                    var neg = makeConditional(-3);
+                    print(neg());
+                }
                 //OUTPUT:5
-                var neg = makeConditional(-3);
-                print(neg());
                 //OUTPUT:3
             `);
         });
@@ -383,8 +427,10 @@ describe('Closure Tests', () => {
                     }
                     return factorial;
                 }
-                var fact = makeRecursive();
-                print(fact(5));
+                fun main(){
+                    var fact = makeRecursive();
+                    print(fact(5));
+                }
                 //OUTPUT:120
             `);
         });

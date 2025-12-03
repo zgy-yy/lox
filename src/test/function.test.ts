@@ -9,7 +9,9 @@ describe('Function Tests', () => {
                 fun sayHello() {
                     print("Hello");
                 }
-                sayHello();
+                fun main(){
+                    sayHello();
+                }
                 //OUTPUT:Hello
             `);
         });
@@ -19,9 +21,11 @@ describe('Function Tests', () => {
                 fun greet(name) {
                     print("Hello, " + name);
                 }
-                greet("Alice");
+                fun main(){
+                    greet("Alice");
+                    greet("Bob");
+                }
                 //OUTPUT:Hello, Alice
-                greet("Bob");
                 //OUTPUT:Hello, Bob
             `);
         });
@@ -31,9 +35,11 @@ describe('Function Tests', () => {
                 fun add(a, b) {
                     print(a + b);
                 }
-                add(1, 2);
+                fun main(){
+                    add(1, 2);
+                    add(10, 20);
+                }
                 //OUTPUT:3
-                add(10, 20);
                 //OUTPUT:30
             `);
         });
@@ -43,7 +49,9 @@ describe('Function Tests', () => {
                 fun getValue() {
                     print(42);
                 }
-                getValue();
+                fun main(){
+                    getValue();
+                }
                 //OUTPUT:42
             `);
         });
@@ -53,9 +61,11 @@ describe('Function Tests', () => {
                 fun sum(a, b, c) {
                     print(a + b + c);
                 }
-                sum(1, 2, 3);
+                fun main(){
+                    sum(1, 2, 3);
+                    sum(10, 20, 30);
+                }
                 //OUTPUT:6
-                sum(10, 20, 30);
                 //OUTPUT:60
             `);
         });
@@ -67,11 +77,13 @@ describe('Function Tests', () => {
                 fun printNumber(n) {
                     print(n);
                 }
-                printNumber(1);
+                fun main(){
+                    printNumber(1);
+                    printNumber(2);
+                    printNumber(3);
+                }
                 //OUTPUT:1
-                printNumber(2);
                 //OUTPUT:2
-                printNumber(3);
                 //OUTPUT:3
             `);
         });
@@ -84,9 +96,11 @@ describe('Function Tests', () => {
                 fun multiply(a, b) {
                     print(a * b);
                 }
-                multiply(2, 3);
+                fun main(){
+                    multiply(2, 3);
+                    add(1, 6);
+                }
                 //OUTPUT:6
-                add(1, 6);
                 //OUTPUT:7
             `);
         });
@@ -96,8 +110,10 @@ describe('Function Tests', () => {
                 fun getFive() {
                     print("getting five");
                 }
-                var result = getFive();
-                print(result);
+                fun main(){
+                    var result = getFive();
+                    print(result);
+                }
                 //OUTPUT:getting five
                 //OUTPUT:null
             `);
@@ -108,7 +124,9 @@ describe('Function Tests', () => {
                 fun add(a, b) {
                     print(a + b);
                 }
-                add(1 + 2, 3 * 4);
+                fun main(){
+                    add(1 + 2, 3 * 4);
+                }
                 //OUTPUT:15
             `);
         });
@@ -121,7 +139,9 @@ describe('Function Tests', () => {
                     var local = "local";
                     print(local);
                 }
-                test();
+                fun main(){
+                    test();
+                }
                 //OUTPUT:local
             `);
         });
@@ -132,9 +152,11 @@ describe('Function Tests', () => {
                 fun test(x) {
                     print(x);
                 }
-                test("inner");
+                fun main(){
+                    test("inner");
+                    print(x);
+                }
                 //OUTPUT:inner
-                print(x);
                 //OUTPUT:outer
             `);
         });
@@ -145,7 +167,9 @@ describe('Function Tests', () => {
                 fun test() {
                     print(global);
                 }
-                test();
+                fun main(){
+                    test();
+                }
                 //OUTPUT:global
             `);
         });
@@ -156,11 +180,13 @@ describe('Function Tests', () => {
                 fun increment() {
                     counter = counter + 1;
                 }
-                increment();
-                print(counter);
+                fun main(){
+                    increment();
+                    print(counter);
+                    increment();
+                    print(counter);
+                }
                 //OUTPUT:1
-                increment();
-                print(counter);
                 //OUTPUT:2
             `);
         });
@@ -175,7 +201,9 @@ describe('Function Tests', () => {
                     }
                     print(a);
                 }
-                test();
+                fun main(){
+                    test();
+                }
                 //OUTPUT:3
                 //OUTPUT:1
             `);
@@ -191,7 +219,9 @@ describe('Function Tests', () => {
                         count(n - 1);
                     }
                 }
-                count(3);
+                fun main(){
+                    count(3);
+                }
                 //OUTPUT:3
                 //OUTPUT:2
                 //OUTPUT:1
@@ -209,7 +239,9 @@ describe('Function Tests', () => {
                         fib(n - 2);
                     }
                 }
-                fib(3);
+                fun main(){
+                    fib(3);
+                }
                 //OUTPUT:3
                 //OUTPUT:2
                 //OUTPUT:1
@@ -225,8 +257,10 @@ describe('Function Tests', () => {
                 fun sayHi() {
                     print("Hi");
                 }
-                var greet = sayHi;
-                greet();
+                fun main(){
+                    var greet = sayHi;
+                    greet();
+                }
                 //OUTPUT:Hi
             `);
         });
@@ -240,7 +274,9 @@ describe('Function Tests', () => {
                 fun sayHello() {
                     print("Hello");
                 }
-                callTwice(sayHello);
+                fun main(){
+                    callTwice(sayHello);
+                }
                 //OUTPUT:Hello
                 //OUTPUT:Hello
             `);
@@ -253,10 +289,12 @@ describe('Function Tests', () => {
                     count = count + 1;
                     print(count);
                 }
-                var c = counter;
-                c();
+                fun main(){
+                    var c = counter;
+                    c();
+                    c();
+                }
                 //OUTPUT:1
-                c();
                 //OUTPUT:2
             `);
         });
@@ -273,7 +311,9 @@ describe('Function Tests', () => {
                     }
                     inner();
                 }
-                outer();
+                fun main(){
+                    outer();
+                }
                 //OUTPUT:8
             `);
         });
@@ -288,9 +328,11 @@ describe('Function Tests', () => {
                     }
                     multiply(5);
                 }
-                makeMultiplier(2);
+                fun main(){
+                    makeMultiplier(2);
+                    makeMultiplier(3);
+                }
                 //OUTPUT:10
-                makeMultiplier(3);
                 //OUTPUT:15
             `);
         });
@@ -299,17 +341,21 @@ describe('Function Tests', () => {
     describe('Native Functions', () => {
         test('Clock Function', () => {
             runTest(`
-                var time = clock();
-                print(time > 0);
+                fun main(){
+                    var time = clock();
+                    print(time > 0);
+                }
                 //OUTPUT:true
             `);
         });
 
         test('Print Function', () => {
             runTest(`
-                print("test");
+                fun main(){
+                    print("test");
+                    print(1 + 2);
+                }
                 //OUTPUT:test
-                print(1 + 2);
                 //OUTPUT:3
             `);
         });
@@ -321,7 +367,9 @@ describe('Function Tests', () => {
                 fun noArgs() {
                     print("no args");
                 }
-                noArgs();
+                fun main(){
+                    noArgs();
+                }
                 //OUTPUT:no args
             `);
         });
@@ -331,7 +379,9 @@ describe('Function Tests', () => {
                 fun oneArg(x) {
                     print(x);
                 }
-                oneArg(42);
+                fun main(){
+                    oneArg(42);
+                }
                 //OUTPUT:42
             `);
         });
@@ -341,7 +391,9 @@ describe('Function Tests', () => {
                 fun manyArgs(a, b, c, d) {
                     print(a + b + c + d);
                 }
-                manyArgs(1, 2, 3, 4);
+                fun main(){
+                    manyArgs(1, 2, 3, 4);
+                }
                 //OUTPUT:10
             `);
         });
@@ -353,7 +405,9 @@ describe('Function Tests', () => {
                     print(b);
                     print(c);
                 }
-                printAll(1, "two", true);
+                fun main(){
+                    printAll(1, "two", true);
+                }
                 //OUTPUT:1
                 //OUTPUT:two
                 //OUTPUT:true
@@ -370,10 +424,12 @@ describe('Function Tests', () => {
                 fun negative() {
                     print("negative");
                 }
-                if (true) {
-                    positive();
-                } else {
-                    negative();
+                fun main(){
+                    if (true) {
+                        positive();
+                    } else {
+                        negative();
+                    }
                 }
                 //OUTPUT:positive
             `);
@@ -386,8 +442,10 @@ describe('Function Tests', () => {
                     count = count + 1;
                     print(count);
                 }
-                while (count < 3) {
-                    increment();
+                fun main(){
+                    while (count < 3) {
+                        increment();
+                    }
                 }
                 //OUTPUT:1
                 //OUTPUT:2
@@ -400,8 +458,10 @@ describe('Function Tests', () => {
                 fun printNum(n) {
                     print(n);
                 }
-                for (var i = 0; i < 3; i = i + 1) {
-                    printNum(i);
+                fun main(){
+                    for (var i = 0; i < 3; i = i + 1) {
+                        printNum(i);
+                    }
                 }
                 //OUTPUT:0
                 //OUTPUT:1
@@ -423,7 +483,9 @@ describe('Function Tests', () => {
                     add(x, y);
                     multiply(x, y);
                 }
-                calculate(3, 4);
+                fun main(){
+                    calculate(3, 4);
+                }
                 //OUTPUT:7
                 //OUTPUT:12
             `);
@@ -438,7 +500,9 @@ describe('Function Tests', () => {
                     inner();
                     print("outer");
                 }
-                outer();
+                fun main(){
+                    outer();
+                }
                 //OUTPUT:inner
                 //OUTPUT:outer
             `);
@@ -450,9 +514,11 @@ describe('Function Tests', () => {
                     x = x + 10;
                     print(x);
                 }
-                var value = 5;
-                modify(value);
-                print(value);
+                fun main(){
+                    var value = 5;
+                    modify(value);
+                    print(value);
+                }
                 //OUTPUT:15
                 //OUTPUT:5
             `);

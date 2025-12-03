@@ -5,52 +5,73 @@ describe('Block Statement Tests', () => {
 
     test('Basic Block Scoping', () => {
         runTest(`
-            var a = "global a";
-            var b = "global b";
-            var c = "global c";
-            {
-              var a = "outer a";
-              var b = "outer b";
-              {
-                var a = "inner a";
-                print(a); //OUTPUT:inner a
-                print(b); //OUTPUT:outer b
-                print(c); //OUTPUT:global c
-              }
-              print(a); //OUTPUT:outer a
-              print(b); //OUTPUT:outer b
-              print(c); //OUTPUT:global c
+            fun main(){
+                var a = "global a";
+                var b = "global b";
+                var c = "global c";
+                {
+                  var a = "outer a";
+                  var b = "outer b";
+                  {
+                    var a = "inner a";
+                    print(a);
+                    print(b);
+                    print(c);
+                  }
+                  print(a);
+                  print(b);
+                  print(c);
+                }
+                print(a);
+                print(b);
+                print(c);
             }
-            print(a); //OUTPUT:global a
-            print(b); //OUTPUT:global b
-            print(c); //OUTPUT:global c
+            //OUTPUT:inner a
+            //OUTPUT:outer b
+            //OUTPUT:global c
+            //OUTPUT:outer a
+            //OUTPUT:outer b
+            //OUTPUT:global c
+            //OUTPUT:global a
+            //OUTPUT:global b
+            //OUTPUT:global c
         `);
     });
 
     test('Empty Block', () => {
         runTest(`
-            var a = "outer";
-            {}
-            print(a); //OUTPUT:outer
+            fun main(){
+                var a = "outer";
+                {}
+                print(a);
+            }
+            //OUTPUT:outer
         `);
     });
 
     test('Nested Empty Blocks', () => {
         runTest(`
-            var a = "outer";
-            {{}}
-            print(a); //OUTPUT:outer
+            fun main(){
+                var a = "outer";
+                {{}}
+                print(a);
+            }
+            //OUTPUT:outer
         `);
     });
     
     test('Block Reassigns Outer Variable', () => {
         runTest(`
-            var a = 1;
-            {
-                a = 2;
-                print(a); //OUTPUT:2
+            fun main(){
+                var a = 1;
+                {
+                    a = 2;
+                    print(a);
+                }
+                print(a);
             }
-            print(a); //OUTPUT:2
+            //OUTPUT:2
+            //OUTPUT:2
         `);
     });
 });

@@ -6,47 +6,73 @@ describe('Expression Tests', () => {
     describe('Primary Expressions', () => {
         test('Number Literals', () => {
             runTest(`
-                print(42); //OUTPUT:42
-                print(3.14); //OUTPUT:3.14
-                print(-0); //OUTPUT:0
+                fun main(){
+                    print(42);
+                    print(3.14);
+                    print(-0);
+                }
+                //OUTPUT:42
+                //OUTPUT:3.14
+                //OUTPUT:0
             `);
         });
 
         test('String Literals', () => {
             runTest(`
-                print("hello"); //OUTPUT:hello
-                print("world"); //OUTPUT:world
-                print(""); //OUTPUT:
+                fun main(){
+                    print("hello");
+                    print("world");
+                    print("");
+                }
+                //OUTPUT:hello
+                //OUTPUT:world
+                //OUTPUT:
             `);
         });
 
         test('Boolean Literals', () => {
             runTest(`
-                print(true); //OUTPUT:true
-                print(false); //OUTPUT:false
+                fun main(){
+                    print(true);
+                    print(false);
+                }
+                //OUTPUT:true
+                //OUTPUT:false
             `);
         });
 
         test('Nil Literal', () => {
             runTest(`
-                print(null); //OUTPUT:null
+                fun main(){
+                    print(null);
+                }
+                //OUTPUT:null
             `);
         });
 
         test('Variable Expressions', () => {
             runTest(`
-                var a = 10;
-                print(a); //OUTPUT:10
-                var b = "test";
-                print(b); //OUTPUT:test
+                fun main(){
+                    var a = 10;
+                    print(a);
+                    var b = "test";
+                    print(b);
+                }
+                //OUTPUT:10
+                //OUTPUT:test
             `);
         });
 
         test('Grouping Expressions', () => {
             runTest(`
-                print((1 + 2) * 3); //OUTPUT:9
-                print((2 + 3) * (4 + 5)); //OUTPUT:45
-                print(((1))); //OUTPUT:1
+                fun main(){
+                    print((1 + 2) * 3);
+                    print((2 + 3) * (4 + 5));
+                    print(((1)));
+                }
+                //OUTPUT:9
+                //OUTPUT:45
+                //OUTPUT:1
             `);
         });
     });
@@ -54,50 +80,79 @@ describe('Expression Tests', () => {
     describe('Unary Expressions', () => {
         test('Logical Not', () => {
             runTest(`
-                print(!true); //OUTPUT:false
-                print(!false); //OUTPUT:true
-                print(!null); //OUTPUT:true
-                print(!0); //OUTPUT:true
+                fun main(){
+                    print(!true);
+                    print(!false);
+                    print(!null);
+                    print(!0);
+                }
+                //OUTPUT:false
+                //OUTPUT:true
+                //OUTPUT:true
+                //OUTPUT:true
             `);
         });
 
         test('Negation', () => {
             runTest(`
-                print(-5); //OUTPUT:-5
-                print(-(-5)); //OUTPUT:5
-                print(-(1 + 2)); //OUTPUT:-3
+                fun main(){
+                    print(-5);
+                    print(-(-5));
+                    print(-(1 + 2));
+                }
+                //OUTPUT:-5
+                //OUTPUT:5
+                //OUTPUT:-3
             `);
         });
 
         test('Bitwise Not', () => {
             runTest(`
-                print(~0); //OUTPUT:-1
-                print(~1); //OUTPUT:-2
-                print(~(-1)); //OUTPUT:0
+                fun main(){
+                    print(~0);
+                    print(~1);
+                    print(~(-1));
+                }
+                //OUTPUT:-1
+                //OUTPUT:-2
+                //OUTPUT:0
             `);
         });
 
         test('Prefix Increment', () => {
             runTest(`
-                var a = 5;
-                print(++a); //OUTPUT:6
-                print(a); //OUTPUT:6
+                fun main(){
+                    var a = 5;
+                    print(++a);
+                    print(a);
+                }
+                //OUTPUT:6
+                //OUTPUT:6
             `);
         });
 
         test('Prefix Decrement', () => {
             runTest(`
-                var a = 5;
-                print(--a); //OUTPUT:4
-                print(a); //OUTPUT:4
+                fun main(){
+                    var a = 5;
+                    print(--a);
+                    print(a);
+                }
+                //OUTPUT:4
+                //OUTPUT:4
             `);
         });
 
         test('Multiple Unary Operators', () => {
             runTest(`
-                print(!!true); //OUTPUT:true
-                print(- -5); //OUTPUT:5
-                print(-(-5)); //OUTPUT:5
+                fun main(){
+                    print(!!true);
+                    print(- -5);
+                    print(-(-5));
+                }
+                //OUTPUT:true
+                //OUTPUT:5
+                //OUTPUT:5
             `);
         });
     });
@@ -105,17 +160,25 @@ describe('Expression Tests', () => {
     describe('Postfix Expressions', () => {
         test('Postfix Increment', () => {
             runTest(`
-                var a = 5;
-                print(a++); //OUTPUT:5
-                print(a); //OUTPUT:6
+                fun main(){
+                    var a = 5;
+                    print(a++);
+                    print(a);
+                }
+                //OUTPUT:5
+                //OUTPUT:6
             `);
         });
 
         test('Postfix Decrement', () => {
             runTest(`
-                var a = 5;
-                print(a--); //OUTPUT:5
-                print(a); //OUTPUT:4
+                fun main(){
+                    var a = 5;
+                    print(a--);
+                    print(a);
+                }
+                //OUTPUT:5
+                //OUTPUT:4
             `);
         });
     });
@@ -123,33 +186,53 @@ describe('Expression Tests', () => {
     describe('Factor Expressions (Multiplication, Division, Modulo)', () => {
         test('Multiplication', () => {
             runTest(`
-                print(2 * 3); //OUTPUT:6
-                print(4 * 5 * 2); //OUTPUT:40
-                print(-2 * 3); //OUTPUT:-6
+                fun main(){
+                    print(2 * 3);
+                    print(4 * 5 * 2);
+                    print(-2 * 3);
+                }
+                //OUTPUT:6
+                //OUTPUT:40
+                //OUTPUT:-6
             `);
         });
 
         test('Division', () => {
             runTest(`
-                print(10 / 2); //OUTPUT:5
-                print(15 / 3 / 2); //OUTPUT:2.5
-                print(7 / 2); //OUTPUT:3.5
+                fun main(){
+                    print(10 / 2);
+                    print(15 / 3 / 2);
+                    print(7 / 2);
+                }
+                //OUTPUT:5
+                //OUTPUT:2.5
+                //OUTPUT:3.5
             `);
         });
 
         test('Modulo', () => {
             runTest(`
-                print(10 % 3); //OUTPUT:1
-                print(15 % 4); //OUTPUT:3
-                print(20 % 5); //OUTPUT:0
+                fun main(){
+                    print(10 % 3);
+                    print(15 % 4);
+                    print(20 % 5);
+                }
+                //OUTPUT:1
+                //OUTPUT:3
+                //OUTPUT:0
             `);
         });
 
         test('Precedence', () => {
             runTest(`
-                print(2 + 3 * 4); //OUTPUT:14
-                print(10 - 6 / 2); //OUTPUT:7
-                print(2 * 3 + 4); //OUTPUT:10
+                fun main(){
+                    print(2 + 3 * 4);
+                    print(10 - 6 / 2);
+                    print(2 * 3 + 4);
+                }
+                //OUTPUT:14
+                //OUTPUT:7
+                //OUTPUT:10
             `);
         });
     });
@@ -157,31 +240,49 @@ describe('Expression Tests', () => {
     describe('Term Expressions (Addition, Subtraction)', () => {
         test('Addition', () => {
             runTest(`
-                print(1 + 2); //OUTPUT:3
-                print(1 + 2 + 3); //OUTPUT:6
-                print(10 + 20); //OUTPUT:30
+                fun main(){
+                    print(1 + 2);
+                    print(1 + 2 + 3);
+                    print(10 + 20);
+                }
+                //OUTPUT:3
+                //OUTPUT:6
+                //OUTPUT:30
             `);
         });
 
         test('Subtraction', () => {
             runTest(`
-                print(5 - 2); //OUTPUT:3
-                print(10 - 3 - 2); //OUTPUT:5
-                print(20 - 5); //OUTPUT:15
+                fun main(){
+                    print(5 - 2);
+                    print(10 - 3 - 2);
+                    print(20 - 5);
+                }
+                //OUTPUT:3
+                //OUTPUT:5
+                //OUTPUT:15
             `);
         });
 
         test('String Concatenation', () => {
             runTest(`
-                print("hello" + " " + "world"); //OUTPUT:hello world
-                print("a" + "b" + "c"); //OUTPUT:abc
+                fun main(){
+                    print("hello" + " " + "world");
+                    print("a" + "b" + "c");
+                }
+                //OUTPUT:hello world
+                //OUTPUT:abc
             `);
         });
 
         test('Mixed Operations', () => {
             runTest(`
-                print(1 + 2 - 3); //OUTPUT:0
-                print(10 - 5 + 3); //OUTPUT:8
+                fun main(){
+                    print(1 + 2 - 3);
+                    print(10 - 5 + 3);
+                }
+                //OUTPUT:0
+                //OUTPUT:8
             `);
         });
     });
@@ -189,24 +290,38 @@ describe('Expression Tests', () => {
     describe('Shift Expressions', () => {
         test('Right Shift', () => {
             runTest(`
-                print(8 >> 2); //OUTPUT:2
-                print(16 >> 1); //OUTPUT:8
-                print(32 >> 3); //OUTPUT:4
+                fun main(){
+                    print(8 >> 2);
+                    print(16 >> 1);
+                    print(32 >> 3);
+                }
+                //OUTPUT:2
+                //OUTPUT:8
+                //OUTPUT:4
             `);
         });
 
         test('Left Shift', () => {
             runTest(`
-                print(2 << 2); //OUTPUT:8
-                print(4 << 1); //OUTPUT:8
-                print(1 << 3); //OUTPUT:8
+                fun main(){
+                    print(2 << 2);
+                    print(4 << 1);
+                    print(1 << 3);
+                }
+                //OUTPUT:8
+                //OUTPUT:8
+                //OUTPUT:8
             `);
         });
 
         test('Precedence', () => {
             runTest(`
-                print(1 + 2 << 1); //OUTPUT:6
-                print(8 >> 1 + 1); //OUTPUT:2
+                fun main(){
+                    print(1 + 2 << 1);
+                    print(8 >> 1 + 1);
+                }
+                //OUTPUT:6
+                //OUTPUT:2
             `);
         });
     });
@@ -214,33 +329,53 @@ describe('Expression Tests', () => {
     describe('Comparison Expressions', () => {
         test('Greater Than', () => {
             runTest(`
-                print(5 > 3); //OUTPUT:true
-                print(3 > 5); //OUTPUT:false
-                print(5 > 5); //OUTPUT:false
+                fun main(){
+                    print(5 > 3);
+                    print(3 > 5);
+                    print(5 > 5);
+                }
+                //OUTPUT:true
+                //OUTPUT:false
+                //OUTPUT:false
             `);
         });
 
         test('Greater Than or Equal', () => {
             runTest(`
-                print(5 >= 3); //OUTPUT:true
-                print(5 >= 5); //OUTPUT:true
-                print(3 >= 5); //OUTPUT:false
+                fun main(){
+                    print(5 >= 3);
+                    print(5 >= 5);
+                    print(3 >= 5);
+                }
+                //OUTPUT:true
+                //OUTPUT:true
+                //OUTPUT:false
             `);
         });
 
         test('Less Than', () => {
             runTest(`
-                print(3 < 5); //OUTPUT:true
-                print(5 < 3); //OUTPUT:false
-                print(5 < 5); //OUTPUT:false
+                fun main(){
+                    print(3 < 5);
+                    print(5 < 3);
+                    print(5 < 5);
+                }
+                //OUTPUT:true
+                //OUTPUT:false
+                //OUTPUT:false
             `);
         });
 
         test('Less Than or Equal', () => {
             runTest(`
-                print(3 <= 5); //OUTPUT:true
-                print(5 <= 5); //OUTPUT:true
-                print(5 <= 3); //OUTPUT:false
+                fun main(){
+                    print(3 <= 5);
+                    print(5 <= 5);
+                    print(5 <= 3);
+                }
+                //OUTPUT:true
+                //OUTPUT:true
+                //OUTPUT:false
             `);
         });
 
@@ -249,28 +384,46 @@ describe('Expression Tests', () => {
     describe('Equality Expressions', () => {
         test('Equality', () => {
             runTest(`
-                print(1 == 1); //OUTPUT:true
-                print(1 == 2); //OUTPUT:false
-                print("hello" == "hello"); //OUTPUT:true
-                print("hello" == "world"); //OUTPUT:false
-                print(true == true); //OUTPUT:true
-                print(null == null); //OUTPUT:true
+                fun main(){
+                    print(1 == 1);
+                    print(1 == 2);
+                    print("hello" == "hello");
+                    print("hello" == "world");
+                    print(true == true);
+                    print(null == null);
+                }
+                //OUTPUT:true
+                //OUTPUT:false
+                //OUTPUT:true
+                //OUTPUT:false
+                //OUTPUT:true
+                //OUTPUT:true
             `);
         });
 
         test('Inequality', () => {
             runTest(`
-                print(1 != 1); //OUTPUT:false
-                print(1 != 2); //OUTPUT:true
-                print("hello" != "world"); //OUTPUT:true
-                print(true != false); //OUTPUT:true
+                fun main(){
+                    print(1 != 1);
+                    print(1 != 2);
+                    print("hello" != "world");
+                    print(true != false);
+                }
+                //OUTPUT:false
+                //OUTPUT:true
+                //OUTPUT:true
+                //OUTPUT:true
             `);
         });
 
         test('Chained Equality', () => {
             runTest(`
-                print(1 == 1 == true); //OUTPUT:true
-                print(1 != 2 != false); //OUTPUT:true
+                fun main(){
+                    print(1 == 1 == true);
+                    print(1 != 2 != false);
+                }
+                //OUTPUT:true
+                //OUTPUT:true
             `);
         });
     });
@@ -278,9 +431,14 @@ describe('Expression Tests', () => {
     describe('Bitwise AND Expressions', () => {
         test('Bitwise AND', () => {
             runTest(`
-                print(5 & 3); //OUTPUT:1
-                print(12 & 10); //OUTPUT:8
-                print(7 & 3); //OUTPUT:3
+                fun main(){
+                    print(5 & 3);
+                    print(12 & 10);
+                    print(7 & 3);
+                }
+                //OUTPUT:1
+                //OUTPUT:8
+                //OUTPUT:3
             `);
         });
 
@@ -289,16 +447,25 @@ describe('Expression Tests', () => {
     describe('Bitwise XOR Expressions', () => {
         test('Bitwise XOR', () => {
             runTest(`
-                print(5 ^ 3); //OUTPUT:6
-                print(12 ^ 10); //OUTPUT:6
-                print(7 ^ 3); //OUTPUT:4
+                fun main(){
+                    print(5 ^ 3);
+                    print(12 ^ 10);
+                    print(7 ^ 3);
+                }
+                //OUTPUT:6
+                //OUTPUT:6
+                //OUTPUT:4
             `);
         });
 
         test('Precedence', () => {
             runTest(`
-                print((5 ^ 3) & 1); //OUTPUT:0
-                print(10 ^ 6 | 2); //OUTPUT:14
+                fun main(){
+                    print((5 ^ 3) & 1);
+                    print(10 ^ 6 | 2);
+                }
+                //OUTPUT:0
+                //OUTPUT:14
             `);
         });
     });
@@ -306,16 +473,25 @@ describe('Expression Tests', () => {
     describe('Bitwise OR Expressions', () => {
         test('Bitwise OR', () => {
             runTest(`
-                print(5 | 3); //OUTPUT:7
-                print(12 | 10); //OUTPUT:14
-                print(7 | 3); //OUTPUT:7
+                fun main(){
+                    print(5 | 3);
+                    print(12 | 10);
+                    print(7 | 3);
+                }
+                //OUTPUT:7
+                //OUTPUT:14
+                //OUTPUT:7
             `);
         });
 
         test('Precedence', () => {
             runTest(`
-                print(5 | 3 ^ 1); //OUTPUT:7
-                print(10 | 6 & 2); //OUTPUT:10
+                fun main(){
+                    print(5 | 3 ^ 1);
+                    print(10 | 6 & 2);
+                }
+                //OUTPUT:7
+                //OUTPUT:10
             `);
         });
     });
@@ -323,28 +499,42 @@ describe('Expression Tests', () => {
     describe('Logical AND Expressions', () => {
         test('Logical AND', () => {
             runTest(`
-                print(true && true); //OUTPUT:true
-                print(true && false); //OUTPUT:false
-                print(false && true); //OUTPUT:false
-                print(false && false); //OUTPUT:false
+                fun main(){
+                    print(true && true);
+                    print(true && false);
+                    print(false && true);
+                    print(false && false);
+                }
+                //OUTPUT:true
+                //OUTPUT:false
+                //OUTPUT:false
+                //OUTPUT:false
             `);
         });
 
         test('Short Circuit Evaluation', () => {
             runTest(`
-                var a = 0;
-                false && (a = 1);
-                print(a); //OUTPUT:0
-                
-                true && (a = 2);
-                print(a); //OUTPUT:2
+                fun main(){
+                    var a = 0;
+                    false && (a = 1);
+                    print(a);
+                    
+                    true && (a = 2);
+                    print(a);
+                }
+                //OUTPUT:0
+                //OUTPUT:2
             `);
         });
 
         test('Precedence', () => {
             runTest(`
-                print(true && false || true); //OUTPUT:true
-                print(false || true && false); //OUTPUT:false
+                fun main(){
+                    print(true && false || true);
+                    print(false || true && false);
+                }
+                //OUTPUT:true
+                //OUTPUT:false
             `);
         });
     });
@@ -352,21 +542,31 @@ describe('Expression Tests', () => {
     describe('Logical OR Expressions', () => {
         test('Logical OR', () => {
             runTest(`
-                print(true || true); //OUTPUT:true
-                print(true || false); //OUTPUT:true
-                print(false || true); //OUTPUT:true
-                print(false || false); //OUTPUT:false
+                fun main(){
+                    print(true || true);
+                    print(true || false);
+                    print(false || true);
+                    print(false || false);
+                }
+                //OUTPUT:true
+                //OUTPUT:true
+                //OUTPUT:true
+                //OUTPUT:false
             `);
         });
 
         test('Short Circuit Evaluation', () => {
             runTest(`
-                var a = 0;
-                true || (a = 1);
-                print(a); //OUTPUT:0
-                
-                false || (a = 2);
-                print(a); //OUTPUT:2
+                fun main(){
+                    var a = 0;
+                    true || (a = 1);
+                    print(a);
+                    
+                    false || (a = 2);
+                    print(a);
+                }
+                //OUTPUT:0
+                //OUTPUT:2
             `);
         });
     });
@@ -374,23 +574,36 @@ describe('Expression Tests', () => {
     describe('Conditional (Ternary) Expressions', () => {
         test('Basic Ternary', () => {
             runTest(`
-                print(true ? 1 : 2); //OUTPUT:1
-                print(false ? 1 : 2); //OUTPUT:2
+                fun main(){
+                    print(true ? 1 : 2);
+                    print(false ? 1 : 2);
+                }
+                //OUTPUT:1
+                //OUTPUT:2
             `);
         });
 
         test('Nested Ternary', () => {
             runTest(`
-                print(true ? 1 : false ? 2 : 3); //OUTPUT:1
-                print(false ? 1 : true ? 2 : 3); //OUTPUT:2
-                print(false ? 1 : false ? 2 : 3); //OUTPUT:3
+                fun main(){
+                    print(true ? 1 : false ? 2 : 3);
+                    print(false ? 1 : true ? 2 : 3);
+                    print(false ? 1 : false ? 2 : 3);
+                }
+                //OUTPUT:1
+                //OUTPUT:2
+                //OUTPUT:3
             `);
         });
 
         test('Precedence', () => {
             runTest(`
-                print(true || false ? 10 : 20); //OUTPUT:10
-                print(false || false ? 10 : 20); //OUTPUT:20
+                fun main(){
+                    print(true || false ? 10 : 20);
+                    print(false || false ? 10 : 20);
+                }
+                //OUTPUT:10
+                //OUTPUT:20
             `);
         });
     });
@@ -398,31 +611,43 @@ describe('Expression Tests', () => {
     describe('Assignment Expressions', () => {
         test('Simple Assignment', () => {
             runTest(`
-                var a;
-                a = 10;
-                print(a); //OUTPUT:10
-                a = 20;
-                print(a); //OUTPUT:20
+                fun main(){
+                    var a;
+                    a = 10;
+                    print(a);
+                    a = 20;
+                    print(a);
+                }
+                //OUTPUT:10
+                //OUTPUT:20
             `);
         });
 
         test('Chained Assignment', () => {
             runTest(`
-                var a;
-                var b;
-                a = b = 5;
-                print(a); //OUTPUT:5
-                print(b); //OUTPUT:5
+                fun main(){
+                    var a;
+                    var b;
+                    a = b = 5;
+                    print(a);
+                    print(b);
+                }
+                //OUTPUT:5
+                //OUTPUT:5
             `);
         });
 
         test('Assignment with Expression', () => {
             runTest(`
-                var a = 5;
-                a = a + 3;
-                print(a); //OUTPUT:8
-                a = a * 2;
-                print(a); //OUTPUT:16
+                fun main(){
+                    var a = 5;
+                    a = a + 3;
+                    print(a);
+                    a = a * 2;
+                    print(a);
+                }
+                //OUTPUT:8
+                //OUTPUT:16
             `);
         });
     });
@@ -431,19 +656,27 @@ describe('Expression Tests', () => {
 
         test('Comma with Assignment', () => {
             runTest(`
-                var a;
-                var b;
-                a = 1, b = 2;
-                print(a); //OUTPUT:1
-                print(b); //OUTPUT:2
+                fun main(){
+                    var a;
+                    var b;
+                    a = 1, b = 2;
+                    print(a);
+                    print(b);
+                }
+                //OUTPUT:1
+                //OUTPUT:2
             `);
         });
 
         test('Comma Precedence', () => {
             runTest(`
-                print((1 + 2, 3 + 4)); //OUTPUT:7
-                var  b = 10;
-                print((1, b)); //OUTPUT:10
+                fun main(){
+                    print((1 + 2, 3 + 4));
+                    var  b = 10;
+                    print((1, b));
+                }
+                //OUTPUT:7
+                //OUTPUT:10
             `);
         });
     });
@@ -451,54 +684,86 @@ describe('Expression Tests', () => {
     describe('Complex Expression Combinations', () => {
         test('Operator Precedence', () => {
             runTest(`
-                print(1 + 2 * 3); //OUTPUT:7
-                print((1 + 2) * 3); //OUTPUT:9
-                print(1 + 2 * 3 - 4); //OUTPUT:3
-                print(2 * 3 + 4 / 2); //OUTPUT:8
+                fun main(){
+                    print(1 + 2 * 3);
+                    print((1 + 2) * 3);
+                    print(1 + 2 * 3 - 4);
+                    print(2 * 3 + 4 / 2);
+                }
+                //OUTPUT:7
+                //OUTPUT:9
+                //OUTPUT:3
+                //OUTPUT:8
             `);
         });
 
         test('Mixed Logical and Arithmetic', () => {
             runTest(`
-                print(1 + 2 == 3); //OUTPUT:true
-                print(5 > 3 && 2 < 4); //OUTPUT:true
-                print(1 + 2 * 3 > 5); //OUTPUT:true
+                fun main(){
+                    print(1 + 2 == 3);
+                    print(5 > 3 && 2 < 4);
+                    print(1 + 2 * 3 > 5);
+                }
+                //OUTPUT:true
+                //OUTPUT:true
+                //OUTPUT:true
             `);
         });
 
         test('Nested Expressions', () => {
             runTest(`
-                print(((1 + 2) * (3 + 4))); //OUTPUT:21
-                print((5 > 3) && (2 < 4)); //OUTPUT:true
-                print(!(1 == 2)); //OUTPUT:true
+                fun main(){
+                    print(((1 + 2) * (3 + 4)));
+                    print((5 > 3) && (2 < 4));
+                    print(!(1 == 2));
+                }
+                //OUTPUT:21
+                //OUTPUT:true
+                //OUTPUT:true
             `);
         });
 
         test('Increment and Decrement in Expressions', () => {
             runTest(`
-                var a = 5;
-                print(++a + 2); //OUTPUT:8
-                print(a); //OUTPUT:6
-                
-                var b = 10;
-                print(b-- + 3); //OUTPUT:13
-                print(b); //OUTPUT:9
+                fun main(){
+                    var a = 5;
+                    print(++a + 2);
+                    print(a);
+                    
+                    var b = 10;
+                    print(b-- + 3);
+                    print(b);
+                }
+                //OUTPUT:8
+                //OUTPUT:6
+                //OUTPUT:13
+                //OUTPUT:9
             `);
         });
 
         test('Complex Bitwise Operations', () => {
             runTest(`
-                print((5 | 3) & 7); //OUTPUT:7
-                print((10 & 6) | 2); //OUTPUT:2
-                print(5 ^ 3 ^ 1); //OUTPUT:7
+                fun main(){
+                    print((5 | 3) & 7);
+                    print((10 & 6) | 2);
+                    print(5 ^ 3 ^ 1);
+                }
+                //OUTPUT:7
+                //OUTPUT:2
+                //OUTPUT:7
             `);
         });
 
         test('Ternary in Arithmetic', () => {
             runTest(`
-                print((true ? 10 : 20) + 5); //OUTPUT:15
-                print(5 + (false ? 10 : 20)); //OUTPUT:25
-                print((1 > 0 ? 100 : 200) * 2); //OUTPUT:200
+                fun main(){
+                    print((true ? 10 : 20) + 5);
+                    print(5 + (false ? 10 : 20));
+                    print((1 > 0 ? 100 : 200) * 2);
+                }
+                //OUTPUT:15
+                //OUTPUT:25
+                //OUTPUT:200
             `);
         });
     });
