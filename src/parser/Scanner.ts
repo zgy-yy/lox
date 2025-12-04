@@ -1,6 +1,6 @@
 import { Token } from '@/ast/Token.ts';
 import { TokenType } from '@/ast/TokenType.ts';
-import {ScannerErrorHandler} from './ErrorHandler';
+import { ScannerErrorHandler } from './ErrorHandler';
 import LoxValue from '@/ast/LoxValue';
 
 
@@ -37,7 +37,7 @@ export class Scanner {
   private line = 1;
   private column = 0;
   private error: ScannerErrorHandler;
-  constructor(private source: string, private _error: ScannerErrorHandler) {
+  constructor(private source: string, _error: ScannerErrorHandler) {
     this.source = source;
     this.error = _error;
   }

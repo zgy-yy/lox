@@ -38,8 +38,8 @@ export class WhileStmt extends Stmt {
 
 export class ForStmt extends Stmt {
     initializer: Stmt;
-    condition: Expr ;
-    increment: Expr ;
+    condition: Expr;
+    increment: Expr;
     body: Stmt;
 
     constructor(initializer: Stmt, condition: Expr, increment: Expr, body: Stmt) {
@@ -158,7 +158,7 @@ export class ClassStmt extends Stmt {
     name: Token;
     methods: FunctionStmt[];
     fields: VarStmt[];
-    constructor(name: Token, methods: FunctionStmt[], fields: VarStmt[]) {
+    constructor(name: Token, fields: VarStmt[], methods: FunctionStmt[]) {
         super();
         this.name = name;
         this.methods = methods;

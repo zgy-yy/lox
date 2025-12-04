@@ -15,6 +15,7 @@ export interface ExprVisitor<R> {
     visitLiteralExpr(expr: LiteralExpr): R;
     visitPostfixExpr(expr: PostfixExpr): R;
     visitCallExpr(expr: CallExpr): R;
+    visitGetExpr(expr: GetExpr): R;
     visitGroupingExpr(expr: GroupingExpr): R;
     visitVariableExpr(expr: VariableExpr): R;
 }
@@ -149,6 +150,18 @@ export class CallExpr extends Expr {
     }
 }
 
+export class GetExpr extends Expr { 
+    object: Expr;
+    name: Token;
+    constructor(object: Expr, name: Token) {
+        super();
+        this.object = object;
+        this.name = name;
+    }
+    accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitGetExpr(this);
+    }
+}
 
 
 

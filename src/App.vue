@@ -12,11 +12,6 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { Scanner } from '@/parser/Scanner';
-import { Parser } from './parser/Parser';
-import { Resolver } from './execute/Resolver';
-import { Interpreter } from './execute/Interperter';
-import RuntimeError from './execute/RuntimeError';
 
 import content from '@/grammar/stmt.e';
 import { Grus } from './Grus';
@@ -34,7 +29,7 @@ const vContent = content.split('\n');
 
 
 // 解析代码
-const reportError = (line: number, column: number, message: string) => {
+const reportError = (line: number, column: number) => {
     errorCursor.push({ line, column });
 };
 

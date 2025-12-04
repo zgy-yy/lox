@@ -1,5 +1,5 @@
-import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
-import LoxValue, { isLoxCallable, isLoxFunction, LoxClass, LoxFunction, NativeFunction, Return } from "@/ast/LoxValue";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import LoxValue, { isLoxCallable, isLoxFunction, LoxClass, LoxFunction, LoxInstance, NativeFunction, Return } from "@/ast/LoxValue";
 import { BlockStmt, BreakStmt, ClassStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
@@ -39,7 +39,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     public interpret(statements: Stmt[]) {
         try {
             const main = new ExpressionStmt(new CallExpr(new VariableExpr(new Token(TokenType.Identifier, "main", null, 0, 0)), new Token(TokenType.Identifier, "main", null, 0, 0), []));
-            const program = [ ...statements,main];
+            const program = [...statements, main];
             for (const statement of program) {
                 this.execute(statement);
             }
@@ -96,7 +96,11 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
     visitClassStmt(stmt: ClassStmt): void {
         this.environment.define(stmt.name, null);
-        const loxClass = new LoxClass(stmt.name.lexeme);
+        const fields = new Map<string, Expr | null>();
+        for (const field of stmt.fields) {
+            fields.set(field.name.lexeme, field.initializer);
+        }
+        const loxClass = new LoxClass(stmt.name.lexeme, fields);
         this.environment.assign(stmt.name, loxClass);
     }
 
@@ -148,7 +152,7 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
 
 
     //计算表达式
-    private evaluate(expr: Expr): LoxValue {
+    evaluate(expr: Expr): LoxValue {
         return expr.accept(this);
     }
 
@@ -348,6 +352,14 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
             }
         }
         return callee.call(this, args);
+    }
+
+    visitGetExpr(expr: GetExpr): LoxValue {
+        const object = this.evaluate(expr.object);
+        if ((object instanceof LoxInstance)) {
+            return object.get(expr.name);
+        }
+        throw new RuntimeError(expr.name, `Can only get properties from objects.`, expr.name.line, expr.name.column);
     }
 
 

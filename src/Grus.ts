@@ -8,7 +8,7 @@ import { Resolver } from "./execute/Resolver";
 
 
 export class Grus {
-    constructor(private readonly source: string, readonly reportError: (line: number, column: number, message: string) => void) {
+    constructor(private readonly source: string, readonly reportError: (line: number, column: number) => void) {
         this.source = source;
         this.reportError = reportError;
     }
@@ -23,24 +23,30 @@ export class Grus {
         }
         const interpreter = new Interpreter(this.interpreterErrorHandler.bind(this));
         const resolver = new Resolver(interpreter, this.resolverErrorHandler.bind(this));
-        resolver.resolveProgram(statements);
+        resolver.resolveAll(statements);
         interpreter.interpret(statements);
     }
 
     scnnerErrorHandler(line: number, column: number, message: string) {
-        this.reportError(line, column, message);
+        this.reportError(line, column);
         console.error(`scanner error [line ${line}, column ${column}] ${message}`);
     }
     parserErrorHandler(token: Token, message: string) {
-        this.reportError(token.line, token.column, message);
+        for (let i = 0; i < token.lexeme.length; i++) {
+            this.reportError(token.line, token.column -i);
+        }
         console.error(`parser error [${token.line}:${token.column}] ${message}`);
     }
     resolverErrorHandler(token: Token, message: string) {
-        this.reportError(token.line, token.column, message);
+        for (let i = 0; i < token.lexeme.length; i++) {
+            this.reportError(token.line, token.column -i);
+        }
         console.error(`resolver error [${token.line}:${token.column}] ${message}`);
     }
     interpreterErrorHandler(error: RuntimeError) {
-        this.reportError(error.token.line, error.token.column, error.message);
+        for (let i = 0; i < error.token.lexeme.length; i++) {
+            this.reportError(error.token.line, error.token.column -i);
+        }
         console.error(`interpreter error [${error.token.line}:${error.token.column}] ${error.message}`);
     }
 }

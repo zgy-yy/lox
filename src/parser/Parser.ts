@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, GetExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import { ParserErrorHandler } from "./ErrorHandler";
@@ -140,10 +140,14 @@ export class Parser {
         const methods: FunctionStmt[] = [];
         const fields: VarStmt[] = [];
         while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
-            methods.push(this.funDeclaration());
+            if(this.match(TokenType.Var)){
+                fields.push(this.varDeclaration());
+            }else{
+                methods.push(this.funDeclaration());
+            }
         }
         this.consume(TokenType.RightBrace, "Expect '}' after class body.");
-        return new ClassStmt(name, methods, fields);
+        return new ClassStmt(name, fields, methods);
     }
 
     /**
@@ -632,7 +636,7 @@ export class Parser {
      * --i
      */
     private unary(): Expr {
-        while (this.match(TokenType.Bang, TokenType.Minus, TokenType.Tilde, TokenType.PlusPlus, TokenType.MinusMinus,TokenType.New)) {
+        while (this.match(TokenType.Bang, TokenType.Minus, TokenType.Tilde, TokenType.PlusPlus, TokenType.MinusMinus, TokenType.New)) {
             const operator = this.previous();
             const right = this.unary();
             return new UnaryExpr(operator, right);
@@ -677,6 +681,9 @@ export class Parser {
         while (true) {
             if (this.match(TokenType.LeftParen)) {
                 expr = this.functionCall(expr);
+            } else if (this.match(TokenType.Dot)) {
+                const field = this.consume(TokenType.Identifier, "Expect field name after '.'");
+                expr = new GetExpr(expr, field);
             } else {
                 break;
             }

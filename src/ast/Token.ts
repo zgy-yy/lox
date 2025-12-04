@@ -8,8 +8,9 @@ export class Token {
     public readonly lexeme: string, // 词素
     public readonly literal: LoxValue,// 字面量
     public readonly line: number,// 行号
-    public readonly column: number// 列号
-  ) { }
+    public column: number// 列号
+  ) {
+  }
 
   toString(): string {
     return `${this.type} ${this.lexeme} ${this.literal ? this.literal : ''}`;

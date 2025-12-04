@@ -18,7 +18,6 @@ export enum TokenType {
     Star = 'STAR',// *
     Question = 'QUESTION',// ?
     Colon = 'COLON',// :
-    DotDot = 'DOT',// .
     Percent = 'PERCENT',// %
     Caret = 'CARET',// ^
     Tilde = 'TILDE',// ~
