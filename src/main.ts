@@ -14,3 +14,15 @@ import App from './App.vue';
 // 创建 Vue 应用
 const app = createApp(App);
 app.mount('#app');
+
+
+class Person {
+    name: string = "Person Instance";
+    static Child = class {
+        name: string = "Child Instance";
+    }
+
+    getChild():typeof Person.Child{
+        return Person.Child;
+    }
+}

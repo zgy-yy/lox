@@ -2,7 +2,7 @@ import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, LiteralExpr, L
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import { ParserErrorHandler } from "./ErrorHandler";
-import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
+import { BlockStmt, BreakStmt, ClassStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, VarStmt, WhileStmt } from "@/ast/Stmt";
 
 class ParseError extends Error { }
 
@@ -33,6 +33,11 @@ export class Parser {
                     }
                 } else if (this.match(TokenType.Fun)) {
                     const stmt = this.funDeclaration();
+                    if (stmt) {
+                        statements.push(stmt);
+                    }
+                } else if (this.match(TokenType.Class)) {
+                    const stmt = this.classDeclaration();
                     if (stmt) {
                         statements.push(stmt);
                     }
@@ -73,6 +78,9 @@ export class Parser {
             if (this.match(TokenType.Fun)) {
                 return this.funDeclaration();
             }
+            if (this.match(TokenType.Class)) {
+                return this.classDeclaration();
+            }
             return this.statement();
         } catch (error) {
             if (error instanceof ParseError) {
@@ -91,7 +99,7 @@ export class Parser {
      * var a = 1;
      * var b = 2;
      */
-    private varDeclaration(): Stmt {
+    private varDeclaration(): VarStmt {
         const name = this.consume(TokenType.Identifier, "Expect variable name.");
         const initializer = this.match(TokenType.Equal) ? this.expression() : null;
         this.consume(TokenType.Semicolon, "Expect ';' after variable declaration.");
@@ -108,7 +116,7 @@ export class Parser {
      * return a + b;
      * }
      */
-    private funDeclaration(): Stmt {
+    private funDeclaration(): FunctionStmt {
         const fnName = this.consume(TokenType.Identifier, "Expect function name.");
         this.consume(TokenType.LeftParen, "Expect '(' after function name.");
         const parameters: Token[] = [];
@@ -124,6 +132,18 @@ export class Parser {
         this.consume(TokenType.LeftBrace, "Expect '{' after parameters.");
         const body = this.block();
         return new FunctionStmt(fnName, parameters, body);
+    }
+
+    private classDeclaration(): Stmt {
+        const name = this.consume(TokenType.Identifier, "Expect class name.");
+        this.consume(TokenType.LeftBrace, "Expect '{' after class name.");
+        const methods: FunctionStmt[] = [];
+        const fields: VarStmt[] = [];
+        while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
+            methods.push(this.funDeclaration());
+        }
+        this.consume(TokenType.RightBrace, "Expect '}' after class body.");
+        return new ClassStmt(name, methods, fields);
     }
 
     /**
@@ -612,7 +632,7 @@ export class Parser {
      * --i
      */
     private unary(): Expr {
-        while (this.match(TokenType.Bang, TokenType.Minus, TokenType.Tilde, TokenType.PlusPlus, TokenType.MinusMinus)) {
+        while (this.match(TokenType.Bang, TokenType.Minus, TokenType.Tilde, TokenType.PlusPlus, TokenType.MinusMinus,TokenType.New)) {
             const operator = this.previous();
             const right = this.unary();
             return new UnaryExpr(operator, right);
@@ -653,6 +673,7 @@ export class Parser {
      */
     private call(): Expr {
         let expr = this.primary();
+
         while (true) {
             if (this.match(TokenType.LeftParen)) {
                 expr = this.functionCall(expr);

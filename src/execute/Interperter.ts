@@ -1,6 +1,6 @@
 import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
-import LoxValue, { isLoxCallable, isLoxFunction, LoxFunction, NativeFunction, Return } from "@/ast/LoxValue";
-import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
+import LoxValue, { isLoxCallable, isLoxFunction, LoxClass, LoxFunction, NativeFunction, Return } from "@/ast/LoxValue";
+import { BlockStmt, BreakStmt, ClassStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
 import RuntimeError from "@/execute/RuntimeError";
 import Environment from "./Environment";
@@ -92,6 +92,12 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
     visitReturnStmt(stmt: ReturnStmt): void {
         const value: LoxValue = stmt.value ? this.evaluate(stmt.value) : null;
         throw new Return(value);
+    }
+
+    visitClassStmt(stmt: ClassStmt): void {
+        this.environment.define(stmt.name, null);
+        const loxClass = new LoxClass(stmt.name.lexeme);
+        this.environment.assign(stmt.name, loxClass);
     }
 
     visitIfStmt(stmt: IfStmt): void {
@@ -275,6 +281,8 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         switch (expr.operator.type) {
             case TokenType.Bang:
                 return !right;
+            case TokenType.New:
+                return right;
             default:
                 break;
         }

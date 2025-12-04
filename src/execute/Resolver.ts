@@ -1,5 +1,5 @@
 import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
-import { BlockStmt, BreakStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
+import { BlockStmt, BreakStmt, ClassStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { Interpreter } from "./Interperter";
 import { Token } from "@/ast/Token";
 import { ParserErrorHandler } from "@/parser/ErrorHandler";
@@ -16,6 +16,13 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     constructor(interpreter: Interpreter, error: ParserErrorHandler) {
         this.interpreter = interpreter;
         this.error = error;
+        
+    }
+    
+    resolveProgram(nodes: Stmt[]): void {
+        this.beginScope();
+        this.resolveAll(nodes);
+        this.endScope();
     }
     resolveAll(nodes: AstNode[]): void {
         for (const node of nodes) {
@@ -46,6 +53,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
         this.declare(stmt.name);
         this.define(stmt.name);
         this.resolveFunction(stmt);
+    }
+
+
+    visitClassStmt(stmt: ClassStmt): void {
+        this.declare(stmt.name);
+        this.define(stmt.name);
     }
     visitExpressionStmt(stmt: ExpressionStmt): void {
         this.resolve(stmt.expression);
@@ -171,7 +184,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
             const scope = this.scopes[i];
             if (scope.has(name.lexeme)) {
                 // distance is the number of scopes from the current scope to the global scope
-                this.interpreter.resolve(expr, this.scopes.length - 1 - i);
+                this.interpreter.resolve(expr, this.scopes.length -1 - i);
                 return;
             }
         }

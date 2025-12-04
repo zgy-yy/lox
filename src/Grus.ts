@@ -23,7 +23,7 @@ export class Grus {
         }
         const interpreter = new Interpreter(this.interpreterErrorHandler.bind(this));
         const resolver = new Resolver(interpreter, this.resolverErrorHandler.bind(this));
-        resolver.resolveAll(statements);
+        resolver.resolveProgram(statements);
         interpreter.interpret(statements);
     }
 

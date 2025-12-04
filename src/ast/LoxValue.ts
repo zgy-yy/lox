@@ -1,12 +1,20 @@
 import { Interpreter } from "@/execute/Interperter";
-import { FunctionStmt } from "./Stmt";
+import { ClassStmt, FunctionStmt } from "./Stmt";
 import Environment from "@/execute/Environment";
 
-type LoxValue = number | string | boolean | null | LoxCallable;
+type LoxValue = number | string | boolean | null | LoxCallable | LoxInstance;
 
 export default LoxValue;
 
+export class LoxInstance {
+    constructor(private loxClass: LoxClass) {
+        this.loxClass = loxClass;
+    }
 
+    toString(): string {
+        return `${this.loxClass.name} instance`;
+    }
+}
 
 /**
  * 可调用类型
@@ -72,8 +80,29 @@ export class LoxFunction implements LoxCallable {
     }
 }
 
+
+
+export class LoxClass implements LoxCallable {
+
+    readonly name: string;
+    constructor(name: string,) {
+        this.name = name;
+    }
+
+    arity(): number {
+        return 0;
+    }
+    call(interpreter: Interpreter, args: LoxValue[]): LoxValue {
+        const instance = new LoxInstance(this);
+        return instance;
+    }
+    toString(): string {
+        return `<class ${this.name}>`;
+    }
+}
+
 export function isLoxCallable(value: any): value is LoxCallable {
-    return value instanceof NativeFunction || value instanceof LoxFunction;
+    return value instanceof NativeFunction || value instanceof LoxFunction || value instanceof LoxClass;
 }
 
 export function isLoxNativeFunction(value: any): value is NativeFunction {
@@ -82,6 +111,10 @@ export function isLoxNativeFunction(value: any): value is NativeFunction {
 
 export function isLoxFunction(value: any): value is LoxFunction {
     return value instanceof LoxFunction;
+}
+
+export function isLoxClass(value: any): value is LoxClass {
+    return value instanceof LoxClass;
 }
 
 export class Return {

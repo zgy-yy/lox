@@ -97,16 +97,21 @@ Lox 语言的运算符优先级（从低到高）：
 目前已实现的语法规则如下（与 `Parser.ts` 实现一致）：
 
 ```
-program        → declaration*
-
-declaration    → varDecl
-               | statement
+program        → (varDecl | funDecl)*
 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";"
 
+funDecl        → "fun" IDENTIFIER "(" parameters? ")" "{" body "}"
+parameters     → IDENTIFIER ( "," IDENTIFIER )*
+body           → declaration*
+
+declaration    → varDecl
+               | funDecl
+               | statement
+
 statement      → exprStmt
                | ifStmt
-               | printStmt
+               | returnStmt
                | block
                | whileStmt
                | forStmt
@@ -117,7 +122,7 @@ statement      → exprStmt
 
 exprStmt       → expression ";"
 ifStmt         → "if" "(" expression ")" statement ( "else" statement )?
-printStmt      → "print" expression ";"
+returnStmt     → "return" expression? ";"
 block          → "{" declaration* "}"
 whileStmt      → "while" "(" expression ")" statement
 forStmt        → "for" "(" ( varDecl | exprStmt )? ";" expression? ";" expression? ")" statement
@@ -152,12 +157,42 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
                | IDENTIFIER
 ```
 
+### 程序结构
+
+**重要：** 程序顶层只能包含变量声明和函数声明。所有可执行代码（如表达式语句、控制流语句等）必须放在函数体内，通常放在 `main()` 函数中。
+
+**程序入口：** 解释器会自动调用 `main()` 函数作为程序入口点。
+
+**示例程序结构：**
+```lox
+// 顶层：变量声明
+var globalVar = "global";
+
+// 顶层：函数声明
+fun sayHello() {
+    print("Hello");
+}
+
+// 顶层：main 函数（程序入口）
+fun main() {
+    sayHello();
+    print(globalVar);
+}
+```
+
 ### 解析过程示例
 
 **源代码：**
 ```lox
 var name = "Bob";
-print name;
+
+fun greet() {
+    print("Hello, " + name);
+}
+
+fun main() {
+    greet();
+}
 ```
 
 **解析步骤：**
@@ -168,17 +203,23 @@ print name;
    - 解析初始化表达式 `"Bob"`
    - 匹配分号 `;`
 
-2. **识别打印语句**
-   - 匹配 `print` 关键字
-   - 解析表达式（变量 `name`）
-   - 匹配分号 `;`
+2. **识别函数声明**
+   - 匹配 `fun` 关键字
+   - 读取函数名 `greet`
+   - 解析参数列表（空）
+   - 解析函数体（包含 print 语句）
 
-3. **构建 AST**
+3. **识别 main 函数**
+   - 匹配 `fun` 关键字
+   - 读取函数名 `main`
+   - 解析函数体（包含函数调用）
+
+4. **构建 AST**
    ```
    Program
      ├─ VarDeclaration(name, "Bob")
-     └─ PrintStatement
-         └─ Variable(name)
+     ├─ FunctionDeclaration(greet, [], [PrintStatement(...)])
+     └─ FunctionDeclaration(main, [], [ExpressionStatement(Call(...))])
    ```
 
 ### 错误处理
@@ -191,7 +232,16 @@ print name;
 **错误示例：**
 ```lox
 var name = "Bob"  // 错误：缺少分号
-print "Hello"     // 错误：缺少分号
+print "Hello"     // 错误：顶层不能有表达式语句，必须在函数体内
+```
+
+**正确的写法：**
+```lox
+var name = "Bob";
+
+fun main() {
+    print("Hello");
+}
 ```
 
 ### 表达式
@@ -266,33 +316,42 @@ print "Hello"     // 错误：缺少分号
 
 语句是执行操作的代码单元。Lox 目前实现了以下语句类型：
 
+#### 函数声明
+声明函数，函数体可以包含变量声明、函数声明和其他语句：
+- `fun sayHello() { print("Hello"); }`
+- `fun add(a, b) { return a + b; }`
+- `fun main() { /* 程序入口 */ }`
+
+**注意：** 解释器会自动调用 `main()` 函数作为程序入口点。
+
 #### 表达式语句
-任何表达式后跟分号：
+任何表达式后跟分号（必须在函数体内）：
 - `1 + 2;`
 - `name;`
 
 #### 变量声明语句
-声明并可选地初始化变量：
+声明并可选地初始化变量（可以在顶层或函数体内）：
 - `var name;` - 声明变量，初始值为 `nil`
 - `var age = 42;` - 声明并初始化变量
 - `var greeting = "Hello";`
 
 #### 打印语句
-输出表达式的值：
+输出表达式的值（必须在函数体内）：
 - `print "Hello, world!";`
 - `print 1 + 2;` → 输出 `3`
 - `print name;` → 输出变量 `name` 的值
 
 #### 块语句
-使用大括号 `{}` 将多个语句组合成一个块：
-- `{ var a = 1; print a; }`
+使用大括号 `{}` 将多个语句组合成一个块（通常在函数体内使用）：
+- `{ var a = 1; print(a); }`
 
 #### 条件语句
-使用 `if-else` 进行条件判断：
+使用 `if-else` 进行条件判断（必须在函数体内）：
 - `if (condition) statement;`
 - `if (condition) statement1; else statement2;`
 
 #### 循环语句
+循环语句必须在函数体内使用：
 - **while 循环**：`while (condition) statement;`
 - **for 循环**：`for (initializer; condition; increment) statement;`
   - 所有部分都是可选的：`for (;;) statement;` 等价于无限循环
@@ -300,5 +359,52 @@ print "Hello"     // 错误：缺少分号
 - **loop 循环**：`loop statement;` 等价于 `while (true) statement;`
 
 #### 控制流语句
+- **return**：从函数返回，可以返回值或 `nil`
+  - `return;` - 返回 `nil`
+  - `return value;` - 返回值
 - **break**：跳出当前循环，只能在循环内使用
 - **continue**：跳过当前循环迭代，继续下一次迭代，只能在循环内使用
+
+### 函数
+
+函数是代码组织和重用的基本单元。Lox 支持函数声明、函数调用、闭包和递归。
+
+#### 函数声明
+```lox
+fun functionName(parameter1, parameter2) {
+    // 函数体
+    return value;
+}
+```
+
+#### 函数调用
+```lox
+functionName(arg1, arg2);
+```
+
+#### 程序入口
+程序必须包含一个 `main()` 函数作为入口点，解释器会自动调用它：
+```lox
+fun main() {
+    // 程序从这里开始执行
+    print("Hello, World!");
+}
+```
+
+#### 完整程序示例
+```lox
+// 顶层变量声明
+var globalCounter = 0;
+
+// 顶层函数声明
+fun increment() {
+    globalCounter = globalCounter + 1;
+    return globalCounter;
+}
+
+// 程序入口
+fun main() {
+    print(increment());
+    print(increment());
+}
+```

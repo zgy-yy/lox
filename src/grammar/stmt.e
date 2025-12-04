@@ -1,7 +1,7 @@
-        fun main(){
-                var i = 0;
-                while (i < 3) {
-                    print(i);
-                    i = i + 1;
-                }
-            }
+
+var a=12;
+
+fun main(){
+    var a=23;
+    print(a);
+}

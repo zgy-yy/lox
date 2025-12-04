@@ -18,6 +18,7 @@ export interface StmtVisitor<R> {
     visitBreakStmt(stmt: BreakStmt): R;
     visitContinueStmt(stmt: ContinueStmt): R;
     visitReturnStmt(stmt: ReturnStmt): R;
+    visitClassStmt(stmt: ClassStmt): R;
 }
 
 
@@ -150,5 +151,20 @@ export class ReturnStmt extends Stmt {
     }
     accept<R>(visitor: StmtVisitor<R>): R {
         return visitor.visitReturnStmt(this);
+    }
+}
+
+export class ClassStmt extends Stmt {
+    name: Token;
+    methods: FunctionStmt[];
+    fields: VarStmt[];
+    constructor(name: Token, methods: FunctionStmt[], fields: VarStmt[]) {
+        super();
+        this.name = name;
+        this.methods = methods;
+        this.fields = fields;
+    }
+    accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitClassStmt(this);
     }
 }

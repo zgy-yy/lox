@@ -54,6 +54,7 @@ export enum TokenType {
 
     // 关键字
     Class = 'CLASS',// class
+    New = 'NEW',// new
     Else = 'ELSE',// else
     False = 'FALSE',// false
     For = 'FOR',// for
