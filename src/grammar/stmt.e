@@ -13,6 +13,9 @@ class A{
 fun main(){
     var a=23;
     var ba = new A();
-    print(ba);
-    print(ba.a);
+    fun bar(){
+        return ba;
+    }
+    bar().b =90;
+    print(bar().b);
 }

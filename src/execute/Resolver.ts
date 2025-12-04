@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, SetExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { BlockStmt, BreakStmt, ClassStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { Interpreter } from "./Interperter";
 import { Token } from "@/ast/Token";
@@ -144,6 +144,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
     visitGetExpr(expr: GetExpr): void {
         this.resolve(expr.object);
+    }
+    visitSetExpr(expr: SetExpr): void {
+        this.resolve(expr.object);
+        this.resolve(expr.value);
     }
     visitGroupingExpr(expr: GroupingExpr): void {
         this.resolve(expr.expression);

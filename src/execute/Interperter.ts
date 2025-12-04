@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, SetExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue, { isLoxCallable, isLoxFunction, LoxClass, LoxFunction, LoxInstance, NativeFunction, Return } from "@/ast/LoxValue";
 import { BlockStmt, BreakStmt, ClassStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
@@ -360,6 +360,15 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
             return object.get(expr.name);
         }
         throw new RuntimeError(expr.name, `Can only get properties from objects.`, expr.name.line, expr.name.column);
+    }
+    visitSetExpr(expr: SetExpr): LoxValue {
+        const object = this.evaluate(expr.object);
+        if (!(object instanceof LoxInstance)) {
+            throw new RuntimeError(expr.name, `Can only set properties on objects.`, expr.name.line, expr.name.column);
+        }
+        const value = this.evaluate(expr.value);
+        object.set(expr.name.lexeme, value);
+        return value;
     }
 
 

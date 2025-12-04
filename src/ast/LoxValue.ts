@@ -108,7 +108,7 @@ export class LoxClass implements LoxCallable {
         return undefined;
     }
     toString(): string {
-        return `<class ${this.name}>`;
+        return `<${this.name} class ${Array.from(this.fieldsDefine.keys()).join(', ')}>`;
     }
 }
 
@@ -135,7 +135,7 @@ export class LoxInstance {
         this.fields.set(name, value);
     }
     toString(): string {
-        return `${this.loxClass.name} instance`;
+        return `${this.loxClass.name} instance ${Array.from(this.fields.entries()).map(([key, value]) => `${key}: ${value}`).join(', ')}`;
     }
 }
 

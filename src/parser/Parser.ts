@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, GetExpr, LiteralExpr, LogicalExpr, PostfixExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, GetExpr, LiteralExpr, LogicalExpr, PostfixExpr, SetExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import { ParserErrorHandler } from "./ErrorHandler";
@@ -413,6 +413,8 @@ export class Parser {
             const value = this.assignment();
             if (expr instanceof VariableExpr) {
                 return new AssignExpr(expr.name, value);
+            }else if(expr instanceof GetExpr){
+                return new SetExpr(expr.object, expr.name, value);
             }
             this.parseError(equals, "Invalid assignment target.");
         }
