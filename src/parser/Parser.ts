@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, GetExpr, LiteralExpr, LogicalExpr, PostfixExpr, SetExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, GetExpr, LiteralExpr, LogicalExpr, PostfixExpr, SetExpr, ThisExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
 import { TokenType } from "@/ast/TokenType";
 import { ParserErrorHandler } from "./ErrorHandler";
@@ -721,6 +721,9 @@ export class Parser {
         }
         if (this.match(TokenType.String)) {
             return new LiteralExpr(this.previous().literal);
+        }
+        if (this.match(TokenType.This)) {
+            return new ThisExpr(this.previous());
         }
         if (this.match(TokenType.Identifier)) {
             return new VariableExpr(this.previous());

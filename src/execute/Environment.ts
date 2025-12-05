@@ -45,7 +45,6 @@ export default class Environment {
         this.ancestor(distance).values.set(name.lexeme, value);
     }
     getAt(distance: number, name: string): LoxValue {
-        const value = this.ancestor(distance).values.get(name);
         return this.ancestor(distance).values.get(name) ?? null;
     }
 }

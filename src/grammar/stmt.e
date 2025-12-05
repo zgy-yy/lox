@@ -1,21 +1,22 @@
 
-var i=14;
+var a=23;
 
-
-class A{
-    var a=i;
-    var b=23;
-    foo(){
-        print(b);
+class Thing {
+    var a;
+  getCallback() {
+    this.a=28;
+    print(this);
+    fun localFunction() {
+        print(this.a);
+      print( this);
     }
+
+    return localFunction;
+  }
 }
 
+
 fun main(){
-    var a=23;
-    var ba = new A();
-    fun bar(){
-        return ba;
-    }
-    bar().b =90;
-    print(bar().b);
+   var callback = Thing().getCallback();
+   callback();
 }

@@ -1,4 +1,4 @@
-import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, SetExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, CallExpr, ConditionalExpr, Expr, ExprVisitor, GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, PostfixExpr, SetExpr, ThisExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import LoxValue, { isLoxCallable, isLoxFunction, LoxClass, LoxFunction, LoxInstance, NativeFunction, Return } from "@/ast/LoxValue";
 import { BlockStmt, BreakStmt, ClassStmt, ContinueStmt, ExpressionStmt, ForStmt, FunctionStmt, IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from "@/ast/Stmt";
 import { TokenType } from "@/ast/TokenType";
@@ -100,7 +100,11 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         for (const field of stmt.fields) {
             fields.set(field.name.lexeme, field.initializer);
         }
-        const loxClass = new LoxClass(stmt.name.lexeme, fields);
+        const methods = new Map<string, LoxFunction>();
+        for (const method of stmt.methods) {
+            methods.set(method.name.lexeme, new LoxFunction(method, this.environment));
+        }
+        const loxClass = new LoxClass(stmt.name.lexeme, fields, methods);
         this.environment.assign(stmt.name, loxClass);
     }
 
@@ -366,11 +370,17 @@ export class Interpreter implements ExprVisitor<LoxValue>, StmtVisitor<void> {
         if (!(object instanceof LoxInstance)) {
             throw new RuntimeError(expr.name, `Can only set properties on objects.`, expr.name.line, expr.name.column);
         }
+        if (!object.hasField(expr.name.lexeme)) {
+            throw new RuntimeError(expr.name, `Undefined property '${expr.name.lexeme}'.`, expr.name.line, expr.name.column);
+        }
         const value = this.evaluate(expr.value);
         object.set(expr.name.lexeme, value);
         return value;
     }
 
+    visitThisExpr(expr: ThisExpr): LoxValue {
+        return this.lookupVariable(expr.keyword, expr);
+    }
 
     private isTruthy(value: LoxValue): boolean {
         return value !== null && value !== false;

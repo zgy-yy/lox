@@ -4,6 +4,7 @@ import Environment from "@/execute/Environment";
 import { Token } from "@/ast/Token";
 import RuntimeError from "@/execute/RuntimeError";
 import { Expr } from "./Expr";
+import { TokenType } from "./TokenType";
 
 type LoxValue = number | string | boolean | null | LoxCallable | LoxInstance;
 
@@ -50,11 +51,13 @@ export class LoxFunction implements LoxCallable {
     arity(): number {
         return this.fun_decl.parameters.length;
     }
-    // bind(instance: LoxInstance): LoxFunction {
-    //     const environment = new Environment(this.closure);
-    //     environment.define(new Token(TokenType.Identifier, "this", null, 0, 0), instance);
-    //     return new LoxFunction(this.fun_decl, environment);
-    // }
+
+    bind(instance: LoxInstance): LoxFunction {
+        const environment = new Environment(this.closure);
+        environment.define(new Token(TokenType.This, "this", null, 0, 0), instance);
+        return new LoxFunction(this.fun_decl, environment);
+    }
+
     call(interpreter: Interpreter, args: LoxValue[]): LoxValue {
         /**
          * 创建一个新的环境，并将参数绑定到环境中
@@ -83,11 +86,11 @@ export class LoxFunction implements LoxCallable {
 export class LoxClass implements LoxCallable {
     readonly fieldsDefine: Map<string, Expr | null>
     readonly name: string;
-    // readonly methods: Map<string, LoxFunction>;
-    constructor(name: string, fields: Map<string, Expr | null>) {
+    readonly methods: Map<string, LoxFunction>;
+    constructor(name: string, fields: Map<string, Expr | null>, methods: Map<string, LoxFunction>) {
         this.name = name;
         this.fieldsDefine = fields;
-        // this.methods = methods;
+        this.methods = methods;
     }
 
     arity(): number {
@@ -100,13 +103,12 @@ export class LoxClass implements LoxCallable {
             fields.set(key, value ? interpreter.evaluate(value) : null);
         }
         const instance = new LoxInstance(this, fields);
-
         return instance;
     }
     findMethod(name: string): LoxFunction | undefined {
-        // return this.methods.get(name);
-        return undefined;
+        return this.methods.get(name);
     }
+
     toString(): string {
         return `<${this.name} class ${Array.from(this.fieldsDefine.keys()).join(', ')}>`;
     }
@@ -114,10 +116,13 @@ export class LoxClass implements LoxCallable {
 
 
 export class LoxInstance {
-    private readonly fields: Map<string, LoxValue>
+    readonly fields: Map<string, LoxValue>
     constructor(private loxClass: LoxClass, fields: Map<string, LoxValue>) {
         this.loxClass = loxClass;
         this.fields = fields;
+    }
+    hasField(name: string): boolean {
+        return this.fields.has(name);
     }
     get(name: Token): LoxValue {
         const value = this.fields.get(name.lexeme);
@@ -126,7 +131,7 @@ export class LoxInstance {
         }
         const method = this.loxClass.findMethod(name.lexeme);
         if (method !== undefined) {
-            // return method.bind(this);
+            return method.bind(this);
         }
         throw new RuntimeError(name, `Undefined property '${name.lexeme}'.`, name.line, name.column);
     }
