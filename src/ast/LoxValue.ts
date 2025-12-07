@@ -103,6 +103,10 @@ export class LoxClass implements LoxCallable {
             fields.set(key, value ? interpreter.evaluate(value) : null);
         }
         const instance = new LoxInstance(this, fields);
+        const ins = this.findMethod("init")?.bind(instance)?.call(interpreter, args);
+        if (ins !== undefined && ins !== null) {
+            return ins;
+        }
         return instance;
     }
     findMethod(name: string): LoxFunction | undefined {
