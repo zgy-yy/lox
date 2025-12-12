@@ -4,6 +4,7 @@ import { Scanner } from "./parser/Scanner";
 import RuntimeError from "./execute/RuntimeError";
 import { Interpreter } from "./execute/Interperter";
 import { Resolver } from "./execute/Resolver";
+import { Pratt } from "./parser/Pratt";
 
 
 
@@ -16,15 +17,17 @@ export class Grus {
     run() {
         const scanner = new Scanner(this.source, this.scnnerErrorHandler.bind(this));
         const tokens = scanner.scanTokens();
-        const parser = new Parser(tokens, this.parserErrorHandler.bind(this));
-        const statements = parser.parse();
-        if (!statements) {
-            throw new Error('解析失败');
-        }
-        const interpreter = new Interpreter(this.interpreterErrorHandler.bind(this));
-        const resolver = new Resolver(interpreter, this.resolverErrorHandler.bind(this));
-        resolver.resolveAll(statements);
-        interpreter.interpret(statements);
+        // const parser = new Parser(tokens, this.parserErrorHandler.bind(this));
+        const pratt = new Pratt(tokens, this.parserErrorHandler.bind(this));
+        // const statements = parser.parse();
+        // console.log(statements);
+        // if (!statements) {
+        //     throw new Error('解析失败');
+        // }
+        // const interpreter = new Interpreter(this.interpreterErrorHandler.bind(this));
+        // const resolver = new Resolver(interpreter, this.resolverErrorHandler.bind(this));
+        // resolver.resolveAll(statements);
+        // interpreter.interpret(statements);
     }
 
     scnnerErrorHandler(line: number, column: number, message: string) {
