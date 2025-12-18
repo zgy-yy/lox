@@ -19,6 +19,8 @@ export class Grus {
         const tokens = scanner.scanTokens();
         // const parser = new Parser(tokens, this.parserErrorHandler.bind(this));
         const pratt = new Pratt(tokens, this.parserErrorHandler.bind(this));
+        const statements = pratt.parse();
+        console.log(statements);
         // const statements = parser.parse();
         // console.log(statements);
         // if (!statements) {

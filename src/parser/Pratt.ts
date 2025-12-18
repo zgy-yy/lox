@@ -1,8 +1,10 @@
 import { Token } from "@/ast/Token";
 import { ParserErrorHandler } from "./ErrorHandler";
 import { TokenType } from "@/ast/TokenType";
-import { BinaryExpr, Expr, LiteralExpr, PostfixExpr, ThisExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { AssignExpr, BinaryExpr, Expr, LiteralExpr, PostfixExpr, ThisExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
+import { ExpressionStmt, Stmt, VarStmt } from "@/ast/Stmt";
 
+class ParseError extends Error { }
 
 /**
  * 运算符优先级
@@ -127,9 +129,89 @@ export class Pratt {
     constructor(tokens: Token[], error: ParserErrorHandler) {
         this.tokens = tokens;
         this.parseError = error;
-        const expr = this.expression();
-        console.log(expr);
     }
+
+    /**
+ * 解析 tokens 为语句列表
+ * 将词法分析器生成的 token 序列解析为抽象语法树（AST）
+ * 程序由变量声明和函数声明组成
+ * @returns 解析后的语句列表，如果解析失败则返回 null
+ */
+    public parse(): Stmt[] | null {
+        const statements: Stmt[] = [];
+        while (!this.isAtEnd()) {
+            try {
+                const stmt = this.declaration();
+                if (stmt) {
+                    statements.push(stmt);
+                }
+            } catch (error) {
+                if (error instanceof ParseError) {
+                    this.synchronize();
+                } else {
+                    throw error;
+                }
+            }
+        }
+        return statements;
+    }
+
+    /**
+     * 声明
+     * declaration → varDecl | funDecl | statement
+     * 声明由变量声明、函数声明和语句组成
+     * 例如：
+     * var a = 1;
+     * fun add(a, b) {
+     * return a + b;
+     * }
+     * print a;
+     */
+    private declaration(): Stmt | null {
+        try {
+            if (this.match(TokenType.Var)) {
+                return this.varDeclaration();
+            }
+            if (this.match(TokenType.Fun)) {
+                // return this.funDeclaration();
+            }
+            if (this.match(TokenType.Class)) {
+                // return this.classDeclaration();
+            }
+            return this.statement();
+            // 程序顶层只能有变量声明和函数声明
+            throw this.parseError(this.peek(), "Expect variable or function declaration.");
+        } catch (error) {
+            if (error instanceof ParseError) {
+                this.synchronize();
+                return null;
+            }
+            throw error;
+        }
+    }
+
+    private varDeclaration(): VarStmt {
+        const name = this.consume(TokenType.Identifier, "Expect variable name.");
+        const initializer = this.match(TokenType.Equal) ? this.expression() : null;
+        this.consume(TokenType.Semicolon, "Expect ';' after variable declaration.");
+        return new VarStmt(name, initializer);
+    }
+
+    private statement(): Stmt {
+        return this.expressionStatement();
+    }
+
+
+    private expressionStatement(): Stmt {
+        const expr = this.expression();
+        this.consume(TokenType.Semicolon, "Expect ';' after expression.");
+        return new ExpressionStmt(expr);
+    }
+
+    private expression(): Expr {
+        return this.parsePrecedence(Precedence.COMMA);
+    }
+
     private parsePrecedence(precedence: number): Expr {
         let token = this.advance();
 
@@ -141,7 +223,6 @@ export class Pratt {
 
 
         while (precedence <= this.rules[this.peek().type][2]) {
-            console.log(precedence, this.peek().type);
             token = this.advance();
             const infix = this.rules[token.type][1];
             if (!infix) {
@@ -152,17 +233,18 @@ export class Pratt {
         return expr;
     }
 
-    private expression(): Expr {
-        return this.parsePrecedence(Precedence.COMMA);
-    }
 
     private binary(left: Expr, operator: Token): Expr {
         const precedence = this.rules[operator.type][2]
         const assignOperators = [TokenType.Equal, TokenType.PlusEqual, TokenType.MinusEqual, TokenType.StarEqual, TokenType.SlashEqual, TokenType.PercentEqual, TokenType.CaretEqual, TokenType.AndEqual, TokenType.OrEqual, TokenType.GreaterGreaterEqual, TokenType.LessLessEqual]
         //赋值运算符 右结合
         if (assignOperators.includes(operator.type)) {
-            const right = this.parsePrecedence(precedence);
-            return new BinaryExpr(left, operator, right);
+            //todo 赋值运算符需要检查左值是否可赋值
+            if (left instanceof VariableExpr) {
+                const right = this.parsePrecedence(precedence);
+                return new AssignExpr(left.name, right);
+            }
+            this.parseError(operator, "Invalid assignment target.");
         }
         const right = this.parsePrecedence(precedence + 1);
         return new BinaryExpr(left, operator, right);
@@ -199,8 +281,10 @@ export class Pratt {
         }
     }
 
-    //辅助方法
 
+
+
+    //辅助方法
     /**
  * 消费一个 token
  * 如果当前 token 匹配指定类型，则消费它并返回；否则抛出解析错误
@@ -278,6 +362,30 @@ export class Pratt {
      */
     private previous(): Token {
         return this.tokens[this.current - 1];
+    }
+
+
+    /**
+ * 同步
+ * 当解析器遇到错误时，会尝试同步到下一个语句，继续解析后续代码
+ * 
+ * */
+    private synchronize(): void {
+        this.advance();
+        while (!this.isAtEnd()) {
+            if (this.previous().type === TokenType.Semicolon) return;
+            switch (this.peek().type) {
+                case TokenType.Class:
+                case TokenType.Fun:
+                case TokenType.Var:
+                case TokenType.For:
+                case TokenType.If:
+                case TokenType.While:
+                case TokenType.Return:
+                    return
+            }
+            this.advance();
+        }
     }
 
 }
