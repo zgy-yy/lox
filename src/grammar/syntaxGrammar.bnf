@@ -2,3 +2,7 @@ program        → declaration* EOF ;
 declaration    → classDecl
                | funDecl
                | varDecl;
+
+varDecl        → ("let"|typeExpr) IDENTIFIER  ( "=" expression )? ";" ;
+
+typeExpr       →  IDENTIFIER([])?

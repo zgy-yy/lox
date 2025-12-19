@@ -1,5 +1,5 @@
 import { Token } from "@/ast/Token";
-import { Parser } from "./parser/Parser";
+// import { Parser } from "./parser/Parser";
 import { Scanner } from "./parser/Scanner";
 import RuntimeError from "./execute/RuntimeError";
 import { Interpreter } from "./execute/Interperter";

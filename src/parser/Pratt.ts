@@ -3,8 +3,11 @@ import { ParserErrorHandler } from "./ErrorHandler";
 import { TokenType } from "@/ast/TokenType";
 import { AssignExpr, BinaryExpr, Expr, LiteralExpr, PostfixExpr, ThisExpr, UnaryExpr, VariableExpr } from "@/ast/Expr";
 import { ExpressionStmt, Stmt, VarStmt } from "@/ast/Stmt";
+import { GenericType, Type } from "@/ast/Type";
 
 class ParseError extends Error { }
+
+class TypeParseError extends Error { }
 
 /**
  * 运算符优先级
@@ -108,7 +111,7 @@ export class Pratt {
 
         [TokenType.This]: [null, null, Precedence.NONE],// this
         [TokenType.Super]: [null, null, Precedence.NONE],// super
-        [TokenType.Var]: [null, null, Precedence.NONE],// var
+        [TokenType.Let]: [null, null, Precedence.NONE],// let
         [TokenType.While]: [null, null, Precedence.NONE],// while
         [TokenType.Do]: [null, null, Precedence.NONE],// do
         [TokenType.Loop]: [null, null, Precedence.NONE],// loop
@@ -161,7 +164,8 @@ export class Pratt {
      * declaration → varDecl | funDecl | statement
      * 声明由变量声明、函数声明和语句组成
      * 例如：
-     * var a = 1;
+     * let a = 1;
+     * Int a = 1;
      * fun add(a, b) {
      * return a + b;
      * }
@@ -169,8 +173,17 @@ export class Pratt {
      */
     private declaration(): Stmt | null {
         try {
-            if (this.match(TokenType.Var)) {
-                return this.varDeclaration();
+            if (this.match(TokenType.Let)) {
+                return this.varDeclaration(null);
+            }
+            if (this.check(TokenType.Identifier)) {
+                const saved = this.current;
+                const type = this.type(); // 解析类型表达式
+                if (type === null) {//如果类型表达式解析失败，则回退
+                    this.current = saved;
+                } else {
+                    return this.varDeclaration(type);
+                }
             }
             if (this.match(TokenType.Fun)) {
                 // return this.funDeclaration();
@@ -179,8 +192,6 @@ export class Pratt {
                 // return this.classDeclaration();
             }
             return this.statement();
-            // 程序顶层只能有变量声明和函数声明
-            throw this.parseError(this.peek(), "Expect variable or function declaration.");
         } catch (error) {
             if (error instanceof ParseError) {
                 this.synchronize();
@@ -190,11 +201,17 @@ export class Pratt {
         }
     }
 
-    private varDeclaration(): VarStmt {
+
+    /**
+     * 解析 let 变量声明
+     * let IDENTIFIER ( "=" expression )? ";" 
+     */
+    private varDeclaration(t: Type | null): VarStmt {
         const name = this.consume(TokenType.Identifier, "Expect variable name.");
         const initializer = this.match(TokenType.Equal) ? this.expression() : null;
         this.consume(TokenType.Semicolon, "Expect ';' after variable declaration.");
-        return new VarStmt(name, initializer);
+        // 修复Type参数不兼容tsc的报错，确保Type类型是本地ast/Type而非TypeScript的Type
+        return new VarStmt(name, t, initializer);
     }
 
     private statement(): Stmt {
@@ -281,6 +298,14 @@ export class Pratt {
         }
     }
 
+
+    private type(): Type | null {
+        const name = this.consume(TokenType.Identifier, "Expect type name.");
+        if (this.check(TokenType.Identifier)) {
+            return new GenericType(name);
+        }
+        return null;
+    }
 
 
 
@@ -377,7 +402,7 @@ export class Pratt {
             switch (this.peek().type) {
                 case TokenType.Class:
                 case TokenType.Fun:
-                case TokenType.Var:
+                case TokenType.Let:
                 case TokenType.For:
                 case TokenType.If:
                 case TokenType.While:

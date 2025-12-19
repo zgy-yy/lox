@@ -64,7 +64,8 @@ export enum TokenType {
     Super = 'SUPER',// super
     This = 'THIS',// this
     True = 'TRUE',// true
-    Var = 'VAR',// var
+    // Var = 'VAR',// var
+    Let = 'LET',// let
     While = 'WHILE',// while
     Do = 'DO',// do
     Loop = 'LOOP',// loop

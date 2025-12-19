@@ -1,5 +1,6 @@
 import { Expr } from "@/ast/Expr";
 import { Token } from "@/ast/Token";
+import { Type } from "@/ast/Type";
 
 
 
@@ -115,10 +116,12 @@ export class ExpressionStmt extends Stmt {
 
 export class VarStmt extends Stmt {
     name: Token;
+    type: Type | null;
     initializer: Expr | null;
-    constructor(name: Token, initializer: Expr | null) {
+    constructor(name: Token, type: Type | null, initializer: Expr | null) {
         super();
         this.name = name;
+        this.type = type;
         this.initializer = initializer;
     }
     accept<R>(visitor: StmtVisitor<R>): R {
